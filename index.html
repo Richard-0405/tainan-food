@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的美食口袋名單 (雲端同步版)</title>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <style>
+        :root {
+            --primary: #ff6b6b;
+            --secondary: #0984e3;
+            --bg: #f8f9fa;
+        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); padding: 20px; }
+        .container { max-width: 800px; margin: auto; }
+        h1 { text-align: center; color: #333; }
+        
+        /* 表單區 */
+        .input-group { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+        .category-group { background: #eef2f5; }
+        input, select, button { padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem; }
+        input[type="text"] { flex: 2; min-width: 150px; }
+        
+        button { background: var(--primary); color: white; border: none; cursor: pointer; transition: 0.3s; font-weight: bold; white-space: nowrap; }
+        button:hover { background: #ee5253; }
+        .btn-add-cat { background: var(--secondary); }
+        .btn-add-cat:hover { background: #74b9ff; }
+        .btn-edit { background: #f39c12; color: white; padding: 4px 10px; font-size: 0.9rem; }
+        .btn-edit:hover { background: #e67e22; }
+
+        /* 分類區塊 */
+        .category-section { margin-bottom: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .category-title { background: #4834d4; color: white; padding: 12px 15px; border-radius: 8px; margin-bottom: 0; font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center; transition: 0.3s; }
+        .category-title:hover { background: #3c2bb3; }
+        .cat-title-left { display: flex; align-items: center; gap: 10px; cursor: pointer; flex-grow: 1; user-select: none; }
+        .cat-actions { display: flex; gap: 5px; }
+        
+        /* 列表區 */
+        .shop-list { border-radius: 0 0 8px 8px; border: 1px solid #ddd; border-top: none; min-height: 10px; list-style: none; padding: 0; margin: 0; transition: max-height 0.3s ease-out; overflow: hidden; }
+        .shop-list.collapsed { display: none; }
+        
+        .shop-item { padding: 15px; border-bottom: 1px solid #eee; display: flex; align-items: center; background: white; cursor: grab; }
+        .shop-item:last-child { border-bottom: none; border-radius: 0 0 8px 8px; }
+        .shop-item:active { cursor: grabbing; }
+        .rank-badge { background: #eee; min-width: 25px; height: 25px; display: flex; align-items: center; justify-content: center; border-radius: 50%; margin-right: 15px; font-size: 0.8rem; font-weight: bold; color: #555; }
+        .info { flex-grow: 1; }
+        .info strong { display: block; color: #2d3436; font-size: 1.1rem; }
+        .info small { color: #636e72; }
+        .actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+        .btn-google { color: var(--secondary); text-decoration: none; font-size: 0.9rem; border: 1px solid var(--secondary); padding: 4px 10px; border-radius: 4px; transition: 0.2s; }
+        .btn-google:hover { background: var(--secondary); color: white; }
+        .btn-delete { background: #ff7675; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.9rem; }
+        .btn-delete:hover { background: #d63031; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🍴 美食口袋名單 (共同編輯)</h1>
+
+    <div class="input-group category-group">
+        <strong style="color: #555;">📁 新增類別：</strong>
+        <input type="text" id="newCategoryName" placeholder="例如：日式拉麵、火鍋...">
+        <button class="btn-add-cat" onclick="addNewCategory()">+ 建立類別</button>
+    </div>
+
+    <div class="input-group">
+        <strong style="color: #555;">🏪 新增店家：</strong>
+        <input type="text" id="shopName" placeholder="貼上店名 (必填)...">
+        <input type="text" id="shopAddr" placeholder="地址或備註 (選填)...">
+        <select id="categorySelect"></select>
+        <button onclick="addShop()">新增至清單</button>
+    </div>
+
+    <div id="listsContainer">
+        <p style="text-align:center; color:#888;">正在與雲端連線中...</p>
+    </div>
+</div>
+
+<script>
+    // ==========================================
+    // 1. Firebase 初始化設定
+    // ==========================================
+    // ★請把這裡的內容替換成你在 Firebase 控制台複製的 firebaseConfig★
+    const firebaseConfig = {
+     apiKey: "AIzaSyB90vqYZY_2QM0IBZcJjGcvtmshLsJ89U0",
+     authDomain: "food-store-8be2a.firebaseapp.com",
+     projectId: "food-store-8be2a",
+     storageBucket: "food-store-8be2a.firebasestorage.app",
+     messagingSenderId: "307868347359",
+     appId: "1:307868347359:web:78cb5bbaa6d82970c0726a",
+     measurementId: "G-SGB5C4TY7K"
+};
+
+
+    // 啟動 Firebase 與資料庫
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    
+    // ==========================================
+    // 2. 初始資料與系統變數
+    // ==========================================
+    const container = document.getElementById('listsContainer');
+    const selectElement = document.getElementById('categorySelect');
+    let isSyncing = false; // 用來防止無限迴圈存檔的標記
+
+    const myImportedData = [
+        {"id":"cat-1775664577807255", "name":"🍝 義大利麵", "collapsed":true, "shops":[]},
+        {"id":"cat-1775664577808180", "name":"🍛 泰式", "collapsed":true, "shops":[{"name":"芙樂菈露","addr":"台南市中西區民權路一段69號"}]},
+        {"id":"cat-1775664577809138", "name":"🍜 一般麵店", "collapsed":true, "shops":[{"name":"小金麵店-成功店","addr":"臺南市中西區成功路559號"},{"name":"老王下麵","addr":"臺南市北區成功路490號"}]},
+        {"id":"cat-1775664577809769", "name":"☕ 咖啡廳", "collapsed":true, "shops":[{"name":"拾光室","addr":"臺南市中西區民權路四段112巷6號"},{"name":"稲満珈琲","addr":"704臺南市北區南園街49巷51號"},{"name":"栖嶼咖啡","addr":"臺南市中西區中正路53巷8號1樓"},{"name":"艾柏達咖啡x Brunch","addr":"台南市中西區府前路二段283號"}]},
+        {"id":"cat-1775664577809184", "name":"🍰 甜點店", "collapsed":true, "shops":[{"name":"綠町抹","addr":"700臺南市中西區府中街58號1樓"},{"name":"淺草本店","addr":"台南市中西區國華街三段26號B17"}]},
+        {"id":"cat-1775664650792767", "name":"早午餐", "collapsed":true, "shops":[{"name":"李記商行","addr":"704臺南市北區大興街498號"},{"name":"順順料理所","addr":"台南市南區大成路二段238號"},{"name":"銀碗","addr":"台南市北區西門路四段140巷26號"},{"name":"NOT BED Brunch x Bakery","addr":"台南市安平區建平八街66號"},{"name":"予你早午餐","addr":"台南市中西區府前一街103巷32號"},{"name":"PIANO","addr":"臺南市中西區府前路一段342巷19號1樓"}]}
+    ];
+
+    // ==========================================
+    // 3. 雲端資料同步系統 (取代原本的 localStorage)
+    // ==========================================
+    
+    // 監聽雲端資料庫變化 (有人更新就會自動執行)
+    db.ref('sharedFoodList').on('value', (snapshot) => {
+        const data = snapshot.val();
+        isSyncing = true; // 開啟同步標記，這期間畫面的改變不會反向存回資料庫
+
+        if (data) {
+            renderAllData(data);
+        } else {
+            // 如果資料庫是空的 (第一次使用)，就把預設資料傳上去
+            db.ref('sharedFoodList').set(myImportedData);
+        }
+        
+        isSyncing = false; // 畫面更新完畢，解除標記
+    });
+
+    // 儲存資料到雲端
+    function saveData() {
+        if (isSyncing) return; // 如果是被雲端觸發的更新，就不需要再存回雲端
+
+        const data = [];
+        document.querySelectorAll('.category-section').forEach(section => {
+            const catId = section.id.replace('section-', '');
+            const catName = document.getElementById(`name-${catId}`).innerText;
+            const isCollapsed = document.getElementById(catId).classList.contains('collapsed');
+            
+            const shops = [];
+            section.querySelectorAll('.shop-item').forEach(item => {
+                const name = item.querySelector('.info strong').innerText;
+                let addr = item.querySelector('.info small').innerText;
+                if (addr === '（無備註，可點擊右側搜尋）') addr = '';
+                shops.push({ name, addr });
+            });
+            
+            data.push({ id: catId, name: catName, collapsed: isCollapsed, shops: shops });
+        });
+
+        // 寫入 Firebase
+        db.ref('sharedFoodList').set(data);
+    }
+
+    // 將資料重新繪製到畫面上
+    function renderAllData(dataToLoad) {
+        container.innerHTML = ''; // 清空原本的列表
+        selectElement.innerHTML = ''; // 清空下拉選單
+
+        dataToLoad.forEach(cat => {
+            createCategorySection(cat.name, cat.id, cat.collapsed);
+            if (cat.shops) {
+                cat.shops.forEach(shop => {
+                    createShopItem(cat.id, shop.name, shop.addr);
+                });
+            }
+        });
+    }
+
+    // ==========================================
+    // 4. 畫面產生系統 (微調過，移除內建的自動存檔以免衝突)
+    // ==========================================
+
+    function createCategorySection(catName, customId = null, isCollapsed = false) {
+        const catId = customId || 'cat-' + Date.now() + Math.floor(Math.random() * 1000);
+
+        const option = document.createElement('option');
+        option.value = catId;
+        option.innerText = catName;
+        selectElement.appendChild(option);
+
+        const section = document.createElement('div');
+        section.className = 'category-section';
+        section.id = 'section-' + catId;
+        
+        const listDisplayClass = isCollapsed ? 'shop-list collapsed' : 'shop-list';
+        const iconText = isCollapsed ? '▶' : '▼';
+        const titleRadius = isCollapsed ? '8px' : '8px 8px 0 0';
+
+        section.innerHTML = `
+            <div class="category-title" style="border-radius: ${titleRadius}">
+                <div class="cat-title-left" onclick="toggleCategory('${catId}')" title="點擊展開/收折">
+                    <span id="icon-${catId}">${iconText}</span>
+                    <strong id="name-${catId}">${catName}</strong>
+                </div>
+                <div class="cat-actions">
+                    <button class="btn-edit" onclick="editCategory('${catId}')">✏️</button>
+                    <button class="btn-delete" onclick="deleteCategory('${catId}')">❌</button>
+                </div>
+            </div>
+            <ul class="${listDisplayClass}" id="${catId}"></ul>
+        `;
+        container.appendChild(section);
+
+        new Sortable(document.getElementById(catId), {
+            animation: 150,
+            ghostClass: 'bg-light',
+            onEnd: function() { 
+                updateRanks(catId); 
+                saveData(); // 拖曳排名後通知雲端
+            }
+        });
+    }
+
+    function createShopItem(catId, name, addr) {
+        const list = document.getElementById(catId);
+        // 修正 Google Maps 官方查詢網址格式
+        const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}`;
+
+        const li = document.createElement('li');
+        li.className = 'shop-item';
+        li.innerHTML = `
+            <div class="rank-badge"></div>
+            <div class="info">
+                <strong>${name}</strong>
+                <small>${addr || '（無備註，可點擊右側搜尋）'}</small>
+            </div>
+            <div class="actions">
+                <a href="${mapUrl}" target="_blank" class="btn-google">🔍 地圖</a>
+                <button class="btn-edit" onclick="editShop(this)">✏️</button>
+                <button class="btn-delete" onclick="deleteShop(this, '${catId}')">❌</button>
+            </div>
+        `;
+        list.appendChild(li);
+        updateRanks(catId);
+    }
+
+    // ==========================================
+    // 5. 使用者操作功能 (新增、編輯、刪除)
+    // ==========================================
+
+    function addNewCategory() {
+        const input = document.getElementById('newCategoryName');
+        const newCat = input.value.trim();
+        if (!newCat) return alert("請輸入類別名稱！");
+        
+        const existingOptions = Array.from(selectElement.options);
+        if (existingOptions.some(opt => opt.innerText === newCat)) {
+            return alert("這個類別已經存在囉！");
+        }
+
+        createCategorySection(newCat);
+        saveData(); // 建立新類別後存檔
+        selectElement.selectedIndex = selectElement.options.length - 1;
+        input.value = '';
+    }
+
+    function editCategory(catId) {
+        const nameElement = document.getElementById(`name-${catId}`);
+        const newName = prompt("請輸入新的類別名稱：", nameElement.innerText);
+        if (newName === null) return;
+        if (newName.trim() === "") return alert("類別名稱不能為空！");
+
+        nameElement.innerText = newName.trim();
+        const option = selectElement.querySelector(`option[value="${catId}"]`);
+        if (option) option.innerText = newName.trim();
+        saveData(); 
+    }
+
+    function deleteCategory(catId) {
+        if (confirm("確定要刪除這個類別，以及裡面「所有的店家」嗎？\n(刪除後雲端也會同步刪除喔！)")) {
+            document.getElementById(`section-${catId}`).remove();
+            const option = selectElement.querySelector(`option[value="${catId}"]`);
+            if (option) option.remove();
+            saveData(); 
+        }
+    }
+
+    function toggleCategory(catId) {
+        const list = document.getElementById(catId);
+        const icon = document.getElementById(`icon-${catId}`);
+        const title = document.querySelector(`#section-${catId} .category-title`);
+        
+        list.classList.toggle('collapsed');
+        if (list.classList.contains('collapsed')) {
+            icon.innerText = '▶';
+            title.style.borderRadius = "8px";
+        } else {
+            icon.innerText = '▼';
+            title.style.borderRadius = "8px 8px 0 0";
+        }
+        saveData(); 
+    }
+
+    function addShop() {
+        const nameInput = document.getElementById('shopName');
+        const addrInput = document.getElementById('shopAddr');
+        const catId = selectElement.value;
+
+        const name = nameInput.value.trim();
+        const addr = addrInput.value.trim();
+
+        if (!name) return alert("請先輸入店名喔！");
+        if (!catId) return alert("請先建立並選擇一個類別！");
+
+        const list = document.getElementById(catId);
+        if (list.classList.contains('collapsed')) {
+            toggleCategory(catId); // 這邊會觸發一次 saveData
+        }
+
+        createShopItem(catId, name, addr);
+        saveData(); // 確保新增店家存檔
+        
+        nameInput.value = '';
+        addrInput.value = '';
+    }
+
+    function editShop(buttonElement) {
+        const li = buttonElement.closest('.shop-item');
+        const nameEl = li.querySelector('.info strong');
+        const addrEl = li.querySelector('.info small');
+
+        const currentName = nameEl.innerText;
+        let currentAddr = addrEl.innerText;
+        if (currentAddr === '（無備註，可點擊右側搜尋）') currentAddr = '';
+
+        const newName = prompt("【修改店家】請輸入新的店名：", currentName);
+        if (newName === null) return; 
+        if (newName.trim() === "") return alert("店名不能為空！");
+
+        const newAddr = prompt("【修改店家】請輸入新的地址或備註：", currentAddr);
+        if (newAddr === null) return;
+
+        nameEl.innerText = newName.trim();
+        addrEl.innerText = newAddr.trim() || '（無備註，可點擊右側搜尋）';
+        
+        saveData();
+    }
+
+    function deleteShop(buttonElement, catId) {
+        buttonElement.closest('.shop-item').remove();
+        updateRanks(catId);
+        saveData(); 
+    }
+
+    function updateRanks(catId) {
+        document.querySelectorAll(`#${catId} .rank-badge`).forEach((item, index) => {
+            item.innerText = index + 1;
+        });
+    }
+</script>
+
+</body>
+</html>
