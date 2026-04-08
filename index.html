@@ -71,7 +71,7 @@
     <div class="input-group">
         <strong style="color: #555;">🏪 新增店家：</strong>
         <input type="text" id="shopName" placeholder="貼上店名 (必填)...">
-        <input type="text" id="shopAddr" placeholder="地址或備註 (選填)...">
+        <input type="text" id="shopAddr" placeholder="貼上地圖網址 或 備註...">
         <select id="categorySelect"></select>
         <button onclick="addShop()">新增至清單</button>
     </div>
@@ -223,8 +223,13 @@
 
     function createShopItem(catId, name, addr) {
         const list = document.getElementById(catId);
-        // 修正 Google Maps 官方查詢網址格式
-        const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}`;
+        
+        // 🌟 新功能：自動判斷是不是網址
+        const safeAddr = addr || '';
+        const isUrl = safeAddr.trim().startsWith('http');
+        
+        // 如果是網址就直接用；如果不是，就換成標準的 Google 地圖搜尋網址！
+        const mapUrl = isUrl ? safeAddr.trim() : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}`;
 
         const li = document.createElement('li');
         li.className = 'shop-item';
@@ -232,7 +237,7 @@
             <div class="rank-badge"></div>
             <div class="info">
                 <strong>${name}</strong>
-                <small>${addr || '（無備註，可點擊右側搜尋）'}</small>
+                <small style="word-break: break-all; color: #0984e3;">${safeAddr || '（無備註，點擊右側搜尋）'}</small>
             </div>
             <div class="actions">
                 <a href="${mapUrl}" target="_blank" class="btn-google">🔍 地圖</a>
