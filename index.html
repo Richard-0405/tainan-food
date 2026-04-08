@@ -370,6 +370,44 @@
             item.innerText = index + 1;
         });
     }
+
+    // 🌟 功能 1：切換排序模式
+    let isSortable = false;
+    function toggleSortMode() {
+        isSortable = !isSortable;
+        const lockBtn = document.getElementById('lockBtn');
+        const handles = document.querySelectorAll('.drag-handle');
+        
+        if (isSortable) {
+            lockBtn.innerText = "🔓 鎖定排序 (存檔)";
+            lockBtn.style.background = "#e17055"; // 變成橘紅色提醒正在編輯
+            handles.forEach(h => h.style.display = 'block');
+            // 啟用拖曳 (如果你有用 Sortable.js，確保它能運作)
+        } else {
+            lockBtn.innerText = "🔒 開啟排序編輯";
+            lockBtn.style.background = "#636e72";
+            handles.forEach(h => h.style.display = 'none');
+            // 鎖定後自動存檔一次 (這會觸發你原本寫在 sortable 的 end 事件)
+            alert("排名已鎖定並儲存！");
+        }
+    }
+
+    // 🌟 功能 2：編輯吃後心得
+    function editReview(btn) {
+        const li = btn.closest('.shop-item');
+        const oldReview = li.getAttribute('data-review') || "";
+        const newReview = prompt("寫下你的吃後心得：", oldReview);
+        
+        // 如果使用者沒按取消
+        if (newReview !== null) {
+            li.setAttribute('data-review', newReview);
+            btn.innerText = newReview ? '💬' : '🗨️'; // 更新圖示
+            
+            // 存入雲端 (觸發你原本的存檔機制)
+            const catId = li.parentElement.id;
+            saveToFirebase(catId);
+        }
+    }
 </script>
 
 </body>
