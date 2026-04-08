@@ -13,66 +13,59 @@
             --primary: #ff6b6b;
             --secondary: #0984e3;
             --bg: #f8f9fa;
+            --accent: #6c5ce7;
         }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); padding: 20px; }
         .container { max-width: 800px; margin: auto; }
-        h1 { text-align: center; color: #333; }
         
+        /* 標題與抽籤按鈕 */
+        .header-area { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        h1 { margin: 0; color: #333; font-size: 1.5rem; }
+        .btn-random { background: var(--accent); color: white; border: none; padding: 10px 18px; border-radius: 50px; cursor: pointer; font-size: 1rem; box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3); transition: 0.3s; }
+        .btn-random:hover { transform: scale(1.05); background: #5b4cc4; }
+
+        /* 輸入框與分類 */
         .input-group { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-        .category-group { background: #eef2f5; }
         input, select, button { padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem; }
         input[type="text"] { flex: 2; min-width: 150px; }
-        
-        button { background: var(--primary); color: white; border: none; cursor: pointer; transition: 0.3s; font-weight: bold; }
-        button:hover { background: #ee5253; }
+        button { background: var(--primary); color: white; border: none; cursor: pointer; font-weight: bold; }
         .btn-add-cat { background: var(--secondary); }
 
         .category-section { margin-bottom: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .category-title { background: #4834d4; color: white; padding: 12px 15px; border-radius: 8px; font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center; }
+        .category-title { background: #4834d4; color: white; padding: 12px 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
         .cat-title-left { display: flex; align-items: center; gap: 10px; cursor: pointer; flex-grow: 1; }
-        .cat-actions { display: flex; gap: 5px; }
-
-        .btn-lock { background: #636e72; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; }
-        .btn-lock.unlocked { background: #e17055; }
-        .btn-edit { background: #f39c12; color: white; padding: 4px 10px; font-size: 0.9rem; }
-        .btn-delete { background: #ff7675; color: white; border: none; padding: 4px 10px; border-radius: 4px; font-size: 0.9rem; }
         
-        .shop-list { border-radius: 0 0 8px 8px; border: 1px solid #ddd; border-top: none; list-style: none; padding: 0; margin: 0; }
+        .shop-list { list-style: none; padding: 0; margin: 0; border: 1px solid #ddd; border-top: none; border-radius: 0 0 8px 8px; }
         .shop-list.collapsed { display: none; }
         
-        .shop-item { padding: 15px; border-bottom: 1px solid #eee; display: flex; flex-direction: column; background: white; }
-        .shop-item:last-child { border-radius: 0 0 8px 8px; }
+        .shop-item { padding: 15px; border-bottom: 1px solid #eee; display: flex; flex-direction: column; background: white; transition: background 0.2s; }
         .shop-main-row { display: flex; align-items: center; width: 100%; }
-        
-        .drag-handle { color: #ccc; font-size: 20px; margin-right: 10px; display: none; }
         .rank-badge { background: #eee; min-width: 25px; height: 25px; display: flex; align-items: center; justify-content: center; border-radius: 50%; margin-right: 15px; font-size: 0.8rem; font-weight: bold; }
         .info { flex-grow: 1; }
-        .info strong { color: #2d3436; font-size: 1.1rem; }
-        .info small { color: #636e72; }
+        .info strong { font-size: 1.1rem; color: #2d3436; }
         
-        /* 🌟 心得區塊樣式 */
-        .review-container { 
-            margin-top: 10px; 
-            padding: 10px; 
-            background: #fff9db; 
-            border-left: 4px solid #f1c40f; 
-            border-radius: 4px; 
-            font-size: 0.95rem; 
-            color: #5d4037; 
-            display: none; /* 預設收起來 */
-        }
-        .review-toggle-btn {
-            background: none; border: none; color: #f39c12; cursor: pointer; padding: 0; margin-left: 10px; font-size: 14px; font-weight: normal;
-        }
+        /* 🌟 心得與收合 */
+        .review-container { margin-top: 10px; padding: 10px; background: #fff9db; border-left: 4px solid #f1c40f; border-radius: 4px; display: none; }
+        .review-toggle-btn { background: none; border: none; color: #f39c12; cursor: pointer; margin-left: 10px; }
 
-        .actions { display: flex; gap: 8px; align-items: center; margin-left: 10px; }
-        .btn-google { color: var(--secondary); text-decoration: none; font-size: 0.9rem; border: 1px solid var(--secondary); padding: 4px 10px; border-radius: 4px; }
+        /* 🌟 隨機抽籤彈窗樣式 */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .random-card { background: white; padding: 30px; border-radius: 20px; text-align: center; max-width: 300px; width: 80%; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .random-card h2 { color: var(--accent); margin-top: 0; }
+        .random-card .shop-name { font-size: 1.5rem; font-weight: bold; margin: 15px 0; color: #333; }
+        .btn-close-overlay { background: #eee; color: #333; padding: 10px 20px; border-radius: 10px; margin-top: 10px; width: 100%; }
+
+        .drag-handle { cursor: grab; color: #ccc; margin-right: 10px; display: none; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>🍴 台南美食清單</h1>
+    <div class="header-area">
+        <h1>🍴 台南美食清單</h1>
+        <button class="btn-random" onclick="pickRandomShop()">🎲 幫我選一個！</button>
+    </div>
 
     <div class="input-group category-group">
         <strong>📁 新增類別：</strong>
@@ -83,13 +76,23 @@
     <div class="input-group">
         <strong>🏪 新增店家：</strong>
         <input type="text" id="shopName" placeholder="店名...">
-        <input type="text" id="shopAddr" placeholder="地圖網址或備註...">
+        <input type="text" id="shopAddr" placeholder="網址或備註...">
         <select id="categorySelect"></select>
-        <button onclick="addShop()">新增至清單</button>
+        <button onclick="addShop()">新增</button>
     </div>
 
     <div id="listsContainer">
         <p style="text-align:center; color:#888;">雲端同步中...</p>
+    </div>
+</div>
+
+<div id="randomOverlay" class="overlay">
+    <div class="random-card">
+        <h2>🎉 今天就吃...</h2>
+        <div id="randomResult" class="shop-name">載入中...</div>
+        <div id="randomCategory" style="color: #888; margin-bottom: 20px;"></div>
+        <button class="btn-close-overlay" onclick="closeOverlay()">太棒了！</button>
+        <button class="btn-random" style="width: 100%; margin-top: 10px;" onclick="pickRandomShop()">再抽一次 🔄</button>
     </div>
 </div>
 
@@ -112,6 +115,7 @@
     let isSyncing = false;
     let sortableInstances = {};
 
+    // 監聽雲端資料
     db.ref('sharedFoodList').on('value', (snapshot) => {
         const data = snapshot.val();
         isSyncing = true;
@@ -166,9 +170,9 @@
                     <strong id="name-${catId}">${catName}</strong>
                 </div>
                 <div class="cat-actions">
-                    <button class="btn-lock" id="lock-${catId}" onclick="toggleSortMode('${catId}')">🔒</button>
-                    <button class="btn-edit" onclick="editCategory('${catId}')">✏️</button>
-                    <button class="btn-delete" onclick="deleteCategory('${catId}')">❌</button>
+                    <button class="btn-lock" id="lock-${catId}" onclick="toggleSortMode('${catId}')" style="background:none; border:none; cursor:pointer; color:white; font-size:1.2rem;">🔒</button>
+                    <button onclick="editCategory('${catId}')" style="background:none; border:none; cursor:pointer; color:white;">✏️</button>
+                    <button onclick="deleteCategory('${catId}')" style="background:none; border:none; cursor:pointer; color:white;">❌</button>
                 </div>
             </div>
             <ul class="shop-list ${isCollapsed ? 'collapsed' : ''}" id="${catId}"></ul>
@@ -189,50 +193,83 @@
         const li = document.createElement('li');
         li.className = 'shop-item';
         li.setAttribute('data-review', review);
-
         li.innerHTML = `
             <div class="shop-main-row">
                 <div class="drag-handle">☰</div>
                 <div class="rank-badge"></div>
                 <div class="info">
                     <strong>${name}</strong>
-                    <small style="word-break: break-all; color: #0984e3;">${safeAddr || '（無備註）'}</small>
+                    <small style="display:block; color:#0984e3; word-break:break-all;">${safeAddr || '（無備註）'}</small>
                 </div>
                 <div class="actions">
-                    <button class="review-toggle-btn" onclick="toggleReview(this)">${review ? '💬 心得' : '➕ 心得'}</button>
-                    <a href="${mapUrl}" target="_blank" class="btn-google">🔍 地圖</a>
-                    <button class="btn-delete" onclick="deleteShop(this, '${catId}')">❌</button>
+                    <button class="review-toggle-btn" onclick="toggleReview(this)">${review ? '💬' : '➕'}</button>
+                    <a href="${mapUrl}" target="_blank" style="text-decoration:none;">🔍</a>
+                    <button onclick="deleteShop(this, '${catId}')" style="background:none; border:none; cursor:pointer;">❌</button>
                 </div>
             </div>
-            <div class="review-container" onclick="editReview(this.parentElement.querySelector('.review-toggle-btn'))" title="點擊編輯心得">
-                ${review || '暫無心得，點擊此處編輯...'}
-            </div>
+            <div class="review-container" onclick="editReview(this.parentElement.querySelector('.review-toggle-btn'))">${review || '點擊編輯心得...'}</div>
         `;
         list.appendChild(li);
         updateRanks(catId);
     }
 
-    // 🌟 心得顯示/隱藏功能
-    function toggleReview(btn) {
-        const li = btn.closest('.shop-item');
-        const container = li.querySelector('.review-container');
-        const isVisible = container.style.display === 'block';
+    // 🌟 隨機抽籤邏輯
+    function pickRandomShop() {
+        const allShops = [];
+        document.querySelectorAll('.category-section').forEach(section => {
+            const catName = section.querySelector('strong').innerText;
+            section.querySelectorAll('.shop-item').forEach(item => {
+                allShops.push({
+                    name: item.querySelector('.info strong').innerText,
+                    category: catName
+                });
+            });
+        });
+
+        if (allShops.length === 0) return alert("清單裡還沒有店喔，快去新增吧！");
+
+        const overlay = document.getElementById('randomOverlay');
+        const resultEl = document.getElementById('randomResult');
+        const catEl = document.getElementById('randomCategory');
         
-        container.style.display = isVisible ? 'none' : 'block';
-        btn.innerText = isVisible ? (li.getAttribute('data-review') ? '💬 心得' : '➕ 心得') : '📖 收合';
+        overlay.style.display = 'flex';
+        resultEl.innerText = "正在挑選...";
+        catEl.innerText = "";
+
+        // 做一個簡單的閃爍跑馬燈特效
+        let count = 0;
+        const timer = setInterval(() => {
+            const tempRandom = allShops[Math.floor(Math.random() * allShops.length)];
+            resultEl.innerText = tempRandom.name;
+            count++;
+            if (count > 10) {
+                clearInterval(timer);
+                const finalPick = allShops[Math.floor(Math.random() * allShops.length)];
+                resultEl.innerText = finalPick.name;
+                catEl.innerText = "分類：" + finalPick.category;
+            }
+        }, 100);
     }
 
-    // 🌟 編輯心得功能
+    function closeOverlay() {
+        document.getElementById('randomOverlay').style.display = 'none';
+    }
+
+    // (其餘原本的切換、編輯、刪除 function 保持不變)
+    function toggleReview(btn) {
+        const container = btn.closest('.shop-item').querySelector('.review-container');
+        const isVisible = container.style.display === 'block';
+        container.style.display = isVisible ? 'none' : 'block';
+    }
+
     function editReview(btn) {
         const li = btn.closest('.shop-item');
-        const oldReview = li.getAttribute('data-review') || "";
-        const newReview = prompt("編輯你的吃後心得：", oldReview);
-        
-        if (newReview !== null) {
-            li.setAttribute('data-review', newReview);
-            const container = li.querySelector('.review-container');
-            container.innerText = newReview || '暫無心得，點擊此處編輯...';
-            btn.innerText = newReview ? '💬 心得' : '➕ 心得';
+        const old = li.getAttribute('data-review') || "";
+        const next = prompt("心得：", old);
+        if (next !== null) {
+            li.setAttribute('data-review', next);
+            li.querySelector('.review-container').innerText = next || '點擊編輯心得...';
+            btn.innerText = next ? '💬' : '➕';
             saveData();
         }
     }
@@ -240,19 +277,14 @@
     function toggleSortMode(catId) {
         const btn = document.getElementById(`lock-${catId}`);
         const instance = sortableInstances[catId];
-        const handles = document.getElementById(catId).querySelectorAll('.drag-handle');
+        const listEl = document.getElementById(catId);
         if (btn.innerText === "🔒") {
-            btn.innerText = "🔓"; btn.classList.add('unlocked'); instance.option("disabled", false);
-            handles.forEach(h => h.style.display = 'block');
+            btn.innerText = "🔓"; instance.option("disabled", false);
+            listEl.querySelectorAll('.drag-handle').forEach(h => h.style.display = 'block');
         } else {
-            btn.innerText = "🔒"; btn.classList.remove('unlocked'); instance.option("disabled", true);
-            handles.forEach(h => h.style.display = 'none');
+            btn.innerText = "🔒"; instance.option("disabled", true);
+            listEl.querySelectorAll('.drag-handle').forEach(h => h.style.display = 'none');
         }
-    }
-
-    function addNewCategory() {
-        const name = document.getElementById('newCategoryName').value.trim();
-        if (name) { createCategorySection(name); saveData(); document.getElementById('newCategoryName').value = ''; }
     }
 
     function toggleCategory(catId) {
@@ -261,6 +293,11 @@
         list.classList.toggle('collapsed');
         icon.innerText = list.classList.contains('collapsed') ? '▶' : '▼';
         saveData();
+    }
+
+    function addNewCategory() {
+        const name = document.getElementById('newCategoryName').value.trim();
+        if (name) { createCategorySection(name); saveData(); document.getElementById('newCategoryName').value = ''; }
     }
 
     function addShop() {
