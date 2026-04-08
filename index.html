@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>台南美食清單</title>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-    
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
@@ -19,42 +18,54 @@
         .container { max-width: 800px; margin: auto; }
         h1 { text-align: center; color: #333; }
         
-        /* 表單區 */
         .input-group { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
         .category-group { background: #eef2f5; }
         input, select, button { padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem; }
         input[type="text"] { flex: 2; min-width: 150px; }
         
-        button { background: var(--primary); color: white; border: none; cursor: pointer; transition: 0.3s; font-weight: bold; white-space: nowrap; }
+        button { background: var(--primary); color: white; border: none; cursor: pointer; transition: 0.3s; font-weight: bold; }
         button:hover { background: #ee5253; }
         .btn-add-cat { background: var(--secondary); }
-        .btn-add-cat:hover { background: #74b9ff; }
 
-        /* 分類區塊 */
         .category-section { margin-bottom: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .category-title { background: #4834d4; color: white; padding: 12px 15px; border-radius: 8px; margin-bottom: 0; font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center; transition: 0.3s; }
-        .cat-title-left { display: flex; align-items: center; gap: 10px; cursor: pointer; flex-grow: 1; user-select: none; }
+        .category-title { background: #4834d4; color: white; padding: 12px 15px; border-radius: 8px; font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center; }
+        .cat-title-left { display: flex; align-items: center; gap: 10px; cursor: pointer; flex-grow: 1; }
         .cat-actions { display: flex; gap: 5px; }
 
-        /* 按鈕樣式 */
-        .btn-lock { background: #636e72; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 14px; }
+        .btn-lock { background: #636e72; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; }
         .btn-lock.unlocked { background: #e17055; }
         .btn-edit { background: #f39c12; color: white; padding: 4px 10px; font-size: 0.9rem; }
-        .btn-delete { background: #ff7675; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.9rem; }
+        .btn-delete { background: #ff7675; color: white; border: none; padding: 4px 10px; border-radius: 4px; font-size: 0.9rem; }
         
-        /* 列表區 */
-        .shop-list { border-radius: 0 0 8px 8px; border: 1px solid #ddd; border-top: none; min-height: 10px; list-style: none; padding: 0; margin: 0; }
+        .shop-list { border-radius: 0 0 8px 8px; border: 1px solid #ddd; border-top: none; list-style: none; padding: 0; margin: 0; }
         .shop-list.collapsed { display: none; }
         
-        .shop-item { padding: 15px; border-bottom: 1px solid #eee; display: flex; align-items: center; background: white; }
-        .shop-item:last-child { border-bottom: none; border-radius: 0 0 8px 8px; }
-        .drag-handle { color: #ccc; font-size: 20px; margin-right: 10px; user-select: none; }
+        .shop-item { padding: 15px; border-bottom: 1px solid #eee; display: flex; flex-direction: column; background: white; }
+        .shop-item:last-child { border-radius: 0 0 8px 8px; }
+        .shop-main-row { display: flex; align-items: center; width: 100%; }
         
-        .rank-badge { background: #eee; min-width: 25px; height: 25px; display: flex; align-items: center; justify-content: center; border-radius: 50%; margin-right: 15px; font-size: 0.8rem; font-weight: bold; color: #555; }
+        .drag-handle { color: #ccc; font-size: 20px; margin-right: 10px; display: none; }
+        .rank-badge { background: #eee; min-width: 25px; height: 25px; display: flex; align-items: center; justify-content: center; border-radius: 50%; margin-right: 15px; font-size: 0.8rem; font-weight: bold; }
         .info { flex-grow: 1; }
         .info strong { color: #2d3436; font-size: 1.1rem; }
         .info small { color: #636e72; }
-        .actions { display: flex; gap: 8px; align-items: center; }
+        
+        /* 🌟 心得區塊樣式 */
+        .review-container { 
+            margin-top: 10px; 
+            padding: 10px; 
+            background: #fff9db; 
+            border-left: 4px solid #f1c40f; 
+            border-radius: 4px; 
+            font-size: 0.95rem; 
+            color: #5d4037; 
+            display: none; /* 預設收起來 */
+        }
+        .review-toggle-btn {
+            background: none; border: none; color: #f39c12; cursor: pointer; padding: 0; margin-left: 10px; font-size: 14px; font-weight: normal;
+        }
+
+        .actions { display: flex; gap: 8px; align-items: center; margin-left: 10px; }
         .btn-google { color: var(--secondary); text-decoration: none; font-size: 0.9rem; border: 1px solid var(--secondary); padding: 4px 10px; border-radius: 4px; }
     </style>
 </head>
@@ -64,26 +75,25 @@
     <h1>🍴 台南美食清單</h1>
 
     <div class="input-group category-group">
-        <strong style="color: #555;">📁 新增類別：</strong>
-        <input type="text" id="newCategoryName" placeholder="例如：日式拉麵、火鍋...">
+        <strong>📁 新增類別：</strong>
+        <input type="text" id="newCategoryName" placeholder="例如：日式拉麵...">
         <button class="btn-add-cat" onclick="addNewCategory()">+ 建立類別</button>
     </div>
 
     <div class="input-group">
-        <strong style="color: #555;">🏪 新增店家：</strong>
-        <input type="text" id="shopName" placeholder="貼上店名 (必填)...">
-        <input type="text" id="shopAddr" placeholder="貼上地圖網址 或 備註...">
+        <strong>🏪 新增店家：</strong>
+        <input type="text" id="shopName" placeholder="店名...">
+        <input type="text" id="shopAddr" placeholder="地圖網址或備註...">
         <select id="categorySelect"></select>
         <button onclick="addShop()">新增至清單</button>
     </div>
 
     <div id="listsContainer">
-        <p style="text-align:center; color:#888;">正在與雲端連線中...</p>
+        <p style="text-align:center; color:#888;">雲端同步中...</p>
     </div>
 </div>
 
 <script>
-    // 1. Firebase 初始化
     const firebaseConfig = {
         apiKey: "AIzaSyB90vqYZY_2QM0IBZcJjGcvtmshLsJ89U0",
         authDomain: "food-store-8be2a.firebaseapp.com",
@@ -100,15 +110,12 @@
     const container = document.getElementById('listsContainer');
     const selectElement = document.getElementById('categorySelect');
     let isSyncing = false;
-    let sortableInstances = {}; // 儲存各分類的拖曳實例
+    let sortableInstances = {};
 
-    // 2. 雲端同步系統
     db.ref('sharedFoodList').on('value', (snapshot) => {
         const data = snapshot.val();
         isSyncing = true;
-        if (data) {
-            renderAllData(data);
-        }
+        if (data) renderAllData(data);
         isSyncing = false;
     });
 
@@ -119,14 +126,13 @@
             const catId = section.id.replace('section-', '');
             const catName = document.getElementById(`name-${catId}`).innerText;
             const isCollapsed = document.getElementById(catId).classList.contains('collapsed');
-            
             const shops = [];
             section.querySelectorAll('.shop-item').forEach(item => {
-                const name = item.querySelector('.info strong').innerText;
-                let addr = item.querySelector('.info small').innerText;
-                if (addr === '（無備註）') addr = '';
-                const review = item.getAttribute('data-review') || ""; // 關鍵：存入心得
-                shops.push({ name, addr, review });
+                shops.push({
+                    name: item.querySelector('.info strong').innerText,
+                    addr: item.querySelector('.info small').innerText === '（無備註）' ? '' : item.querySelector('.info small').innerText,
+                    review: item.getAttribute('data-review') || ""
+                });
             });
             data.push({ id: catId, name: catName, collapsed: isCollapsed, shops: shops });
         });
@@ -139,26 +145,20 @@
         dataToLoad.forEach(cat => {
             createCategorySection(cat.name, cat.id, cat.collapsed);
             if (cat.shops) {
-                cat.shops.forEach(shop => {
-                    createShopItem(cat.id, shop.name, shop.addr, shop.review);
-                });
+                cat.shops.forEach(shop => createShopItem(cat.id, shop.name, shop.addr, shop.review));
             }
         });
     }
 
-    // 3. 核心功能
     function createCategorySection(catName, customId = null, isCollapsed = false) {
         const catId = customId || 'cat-' + Date.now();
-
         const option = document.createElement('option');
-        option.value = catId;
-        option.innerText = catName;
+        option.value = catId; option.innerText = catName;
         selectElement.appendChild(option);
 
         const section = document.createElement('div');
         section.className = 'category-section';
         section.id = 'section-' + catId;
-        
         section.innerHTML = `
             <div class="category-title" style="border-radius: ${isCollapsed ? '8px' : '8px 8px 0 0'}">
                 <div class="cat-title-left" onclick="toggleCategory('${catId}')">
@@ -174,34 +174,10 @@
             <ul class="shop-list ${isCollapsed ? 'collapsed' : ''}" id="${catId}"></ul>
         `;
         container.appendChild(section);
-
-        // 初始化 Sortable 並預設禁用
         sortableInstances[catId] = new Sortable(document.getElementById(catId), {
-            animation: 150,
-            handle: '.drag-handle',
-            disabled: true, // 預設鎖定
+            animation: 150, handle: '.drag-handle', disabled: true,
             onEnd: () => { updateRanks(catId); saveData(); }
         });
-    }
-
-    function toggleSortMode(catId) {
-        const btn = document.getElementById(`lock-${catId}`);
-        const instance = sortableInstances[catId];
-        const listEl = document.getElementById(catId);
-        const handles = listEl.querySelectorAll('.drag-handle');
-
-        if (btn.innerText === "🔒") {
-            btn.innerText = "🔓";
-            btn.classList.add('unlocked');
-            instance.option("disabled", false); // 啟用拖曳
-            handles.forEach(h => h.style.display = 'block');
-        } else {
-            btn.innerText = "🔒";
-            btn.classList.remove('unlocked');
-            instance.option("disabled", true); // 禁用拖曳
-            handles.forEach(h => h.style.display = 'none');
-            alert("排名已鎖定！");
-        }
     }
 
     function createShopItem(catId, name, addr, review = "") {
@@ -215,44 +191,68 @@
         li.setAttribute('data-review', review);
 
         li.innerHTML = `
-            <div class="drag-handle" style="display: none; cursor: grab;">☰</div>
-            <div class="rank-badge"></div>
-            <div class="info">
-                <div style="display: flex; align-items: center;">
+            <div class="shop-main-row">
+                <div class="drag-handle">☰</div>
+                <div class="rank-badge"></div>
+                <div class="info">
                     <strong>${name}</strong>
-                    <button onclick="editReview(this)" style="background:none; border:none; cursor:pointer; font-size:14px; margin-left:8px;">
-                        ${review ? '💬' : '🗨️'}
-                    </button>
+                    <small style="word-break: break-all; color: #0984e3;">${safeAddr || '（無備註）'}</small>
                 </div>
-                <small style="word-break: break-all; color: #0984e3;">${safeAddr || '（無備註）'}</small>
+                <div class="actions">
+                    <button class="review-toggle-btn" onclick="toggleReview(this)">${review ? '💬 心得' : '➕ 心得'}</button>
+                    <a href="${mapUrl}" target="_blank" class="btn-google">🔍 地圖</a>
+                    <button class="btn-delete" onclick="deleteShop(this, '${catId}')">❌</button>
+                </div>
             </div>
-            <div class="actions">
-                <a href="${mapUrl}" target="_blank" class="btn-google">🔍 地圖</a>
-                <button class="btn-delete" onclick="deleteShop(this, '${catId}')">❌</button>
+            <div class="review-container" onclick="editReview(this.parentElement.querySelector('.review-toggle-btn'))" title="點擊編輯心得">
+                ${review || '暫無心得，點擊此處編輯...'}
             </div>
         `;
         list.appendChild(li);
         updateRanks(catId);
     }
 
-    // 4. 其他 UI 操作
+    // 🌟 心得顯示/隱藏功能
+    function toggleReview(btn) {
+        const li = btn.closest('.shop-item');
+        const container = li.querySelector('.review-container');
+        const isVisible = container.style.display === 'block';
+        
+        container.style.display = isVisible ? 'none' : 'block';
+        btn.innerText = isVisible ? (li.getAttribute('data-review') ? '💬 心得' : '➕ 心得') : '📖 收合';
+    }
+
+    // 🌟 編輯心得功能
     function editReview(btn) {
         const li = btn.closest('.shop-item');
         const oldReview = li.getAttribute('data-review') || "";
-        const newReview = prompt("寫下對這家店的心得：", oldReview);
+        const newReview = prompt("編輯你的吃後心得：", oldReview);
+        
         if (newReview !== null) {
             li.setAttribute('data-review', newReview);
-            btn.innerText = newReview ? '💬' : '🗨️';
+            const container = li.querySelector('.review-container');
+            container.innerText = newReview || '暫無心得，點擊此處編輯...';
+            btn.innerText = newReview ? '💬 心得' : '➕ 心得';
             saveData();
+        }
+    }
+
+    function toggleSortMode(catId) {
+        const btn = document.getElementById(`lock-${catId}`);
+        const instance = sortableInstances[catId];
+        const handles = document.getElementById(catId).querySelectorAll('.drag-handle');
+        if (btn.innerText === "🔒") {
+            btn.innerText = "🔓"; btn.classList.add('unlocked'); instance.option("disabled", false);
+            handles.forEach(h => h.style.display = 'block');
+        } else {
+            btn.innerText = "🔒"; btn.classList.remove('unlocked'); instance.option("disabled", true);
+            handles.forEach(h => h.style.display = 'none');
         }
     }
 
     function addNewCategory() {
         const name = document.getElementById('newCategoryName').value.trim();
-        if (!name) return;
-        createCategorySection(name);
-        saveData();
-        document.getElementById('newCategoryName').value = '';
+        if (name) { createCategorySection(name); saveData(); document.getElementById('newCategoryName').value = ''; }
     }
 
     function toggleCategory(catId) {
@@ -260,7 +260,6 @@
         const icon = document.getElementById(`icon-${catId}`);
         list.classList.toggle('collapsed');
         icon.innerText = list.classList.contains('collapsed') ? '▶' : '▼';
-        document.querySelector(`#section-${catId} .category-title`).style.borderRadius = list.classList.contains('collapsed') ? '8px' : '8px 8px 0 0';
         saveData();
     }
 
@@ -268,31 +267,17 @@
         const name = document.getElementById('shopName').value.trim();
         const addr = document.getElementById('shopAddr').value.trim();
         const catId = selectElement.value;
-        if (!name || !catId) return alert("請填寫店名並選擇類別");
-        createShopItem(catId, name, addr);
-        saveData();
-        document.getElementById('shopName').value = '';
-        document.getElementById('shopAddr').value = '';
+        if (name && catId) { createShopItem(catId, name, addr); saveData(); document.getElementById('shopName').value = ''; document.getElementById('shopAddr').value = ''; }
     }
 
-    function deleteShop(btn, catId) {
-        if(confirm("確定刪除？")) { btn.closest('.shop-item').remove(); updateRanks(catId); saveData(); }
-    }
-
-    function deleteCategory(catId) {
-        if(confirm("確定刪除整個類別？")) { document.getElementById(`section-${catId}`).remove(); saveData(); }
-    }
-
+    function deleteShop(btn, catId) { if(confirm("確定刪除？")) { btn.closest('.shop-item').remove(); updateRanks(catId); saveData(); } }
+    function deleteCategory(catId) { if(confirm("確定刪除整個類別？")) { document.getElementById(`section-${catId}`).remove(); saveData(); } }
     function editCategory(catId) {
         const el = document.getElementById(`name-${catId}`);
         const newName = prompt("修改類別名稱：", el.innerText);
-        if(newName) { el.innerText = newName; saveData(); renderAllData([]); /* 重新渲染下拉選單 */ }
+        if(newName) { el.innerText = newName; saveData(); }
     }
-
-    function updateRanks(catId) {
-        document.querySelectorAll(`#${catId} .rank-badge`).forEach((item, i) => { item.innerText = i + 1; });
-    }
+    function updateRanks(catId) { document.querySelectorAll(`#${catId} .rank-badge`).forEach((item, i) => { item.innerText = i + 1; }); }
 </script>
-
 </body>
 </html>
