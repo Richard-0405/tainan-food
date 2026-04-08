@@ -21,7 +21,7 @@
         /* 標題與抽籤按鈕 */
         .header-area { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         h1 { margin: 0; color: #333; font-size: 1.5rem; }
-        .btn-random { background: var(--accent); color: white; border: none; padding: 10px 18px; border-radius: 50px; cursor: pointer; font-size: 1rem; box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3); transition: 0.3s; }
+        .btn-random { background: var(--accent); color: white; border: none; padding: 10px 18px; border-radius: 50px; cursor: pointer; font-size: 1rem; box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3); transition: 0.3s; font-weight: bold; }
         .btn-random:hover { transform: scale(1.05); background: #5b4cc4; }
 
         /* 輸入框與分類 */
@@ -50,11 +50,16 @@
 
         /* 🌟 隨機抽籤彈窗樣式 */
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .random-card { background: white; padding: 30px; border-radius: 20px; text-align: center; max-width: 300px; width: 80%; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .random-card { background: white; padding: 30px; border-radius: 20px; text-align: center; max-width: 320px; width: 85%; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .random-card h2 { color: var(--accent); margin-top: 0; }
-        .random-card .shop-name { font-size: 1.5rem; font-weight: bold; margin: 15px 0; color: #333; }
-        .btn-close-overlay { background: #eee; color: #333; padding: 10px 20px; border-radius: 10px; margin-top: 10px; width: 100%; }
+        .random-card h2 { color: var(--accent); margin-top: 0; font-size: 1.4rem; }
+        .random-card .shop-name { font-size: 1.6rem; font-weight: bold; margin: 15px 0; color: #333; }
+        
+        .btn-random-map { display: block; background: #00b894; color: white; padding: 12px; border-radius: 12px; text-decoration: none; font-weight: bold; margin-bottom: 10px; transition: 0.3s; }
+        .btn-random-map:hover { background: #00a087; transform: translateY(-2px); }
+        
+        .btn-close-overlay { display: block; background: #eee; color: #333; padding: 12px; border-radius: 12px; margin-bottom: 10px; width: 100%; font-weight: bold; border: none; cursor: pointer; }
+        .btn-random-secondary { display: block; background: var(--accent); color: white; padding: 12px; border-radius: 12px; width: 100%; font-weight: bold; border: none; cursor: pointer; }
 
         .drag-handle { cursor: grab; color: #ccc; margin-right: 10px; display: none; }
     </style>
@@ -90,13 +95,17 @@
     <div class="random-card">
         <h2>🎉 今天就吃...</h2>
         <div id="randomResult" class="shop-name">載入中...</div>
-        <div id="randomCategory" style="color: #888; margin-bottom: 20px;"></div>
+        <div id="randomCategory" style="color: #888; margin-bottom: 20px; font-size: 0.9rem;"></div>
+        
+        <a id="randomMapBtn" href="#" target="_blank" class="btn-random-map">🔍 前往地圖</a>
+        
         <button class="btn-close-overlay" onclick="closeOverlay()">太棒了！</button>
-        <button class="btn-random" style="width: 100%; margin-top: 10px;" onclick="pickRandomShop()">再抽一次 🔄</button>
+        <button class="btn-random-secondary" onclick="pickRandomShop()">再抽一次 🔄</button>
     </div>
 </div>
 
 <script>
+    // Firebase 設定
     const firebaseConfig = {
         apiKey: "AIzaSyB90vqYZY_2QM0IBZcJjGcvtmshLsJ89U0",
         authDomain: "food-store-8be2a.firebaseapp.com",
@@ -115,7 +124,6 @@
     let isSyncing = false;
     let sortableInstances = {};
 
-    // 監聽雲端資料
     db.ref('sharedFoodList').on('value', (snapshot) => {
         const data = snapshot.val();
         isSyncing = true;
@@ -128,8 +136,8 @@
         const data = [];
         document.querySelectorAll('.category-section').forEach(section => {
             const catId = section.id.replace('section-', '');
-            const catName = document.getElementById(`name-${catId}`).innerText;
-            const isCollapsed = document.getElementById(catId).classList.contains('collapsed');
+            const catName = section.querySelector('strong').innerText;
+            const isCollapsed = section.querySelector('.shop-list').classList.contains('collapsed');
             const shops = [];
             section.querySelectorAll('.shop-item').forEach(item => {
                 shops.push({
@@ -188,7 +196,7 @@
         const list = document.getElementById(catId);
         const safeAddr = addr || '';
         const isUrl = safeAddr.trim().startsWith('http');
-        const mapUrl = isUrl ? safeAddr.trim() : `https://www.google.com/maps/search/${encodeURIComponent(name)}`;
+        const mapUrl = isUrl ? safeAddr.trim() : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}`;
 
         const li = document.createElement('li');
         li.className = 'shop-item';
@@ -213,7 +221,7 @@
         updateRanks(catId);
     }
 
-    // 🌟 隨機抽籤邏輯
+    // 🌟 隨機抽籤邏輯 (更新版：包含地圖按鈕處理)
     function pickRandomShop() {
         const allShops = [];
         document.querySelectorAll('.category-section').forEach(section => {
@@ -221,6 +229,7 @@
             section.querySelectorAll('.shop-item').forEach(item => {
                 allShops.push({
                     name: item.querySelector('.info strong').innerText,
+                    addr: item.querySelector('.info small').innerText,
                     category: catName
                 });
             });
@@ -231,12 +240,13 @@
         const overlay = document.getElementById('randomOverlay');
         const resultEl = document.getElementById('randomResult');
         const catEl = document.getElementById('randomCategory');
+        const mapBtn = document.getElementById('randomMapBtn');
         
         overlay.style.display = 'flex';
         resultEl.innerText = "正在挑選...";
         catEl.innerText = "";
+        mapBtn.style.visibility = 'hidden'; // 轉動時先隱藏地圖按鈕
 
-        // 做一個簡單的閃爍跑馬燈特效
         let count = 0;
         const timer = setInterval(() => {
             const tempRandom = allShops[Math.floor(Math.random() * allShops.length)];
@@ -247,15 +257,20 @@
                 const finalPick = allShops[Math.floor(Math.random() * allShops.length)];
                 resultEl.innerText = finalPick.name;
                 catEl.innerText = "分類：" + finalPick.category;
+                
+                // 設定地圖按鈕連結
+                const isUrl = finalPick.addr.trim().startsWith('http');
+                const mapUrl = isUrl ? finalPick.addr.trim() : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(finalPick.name)}`;
+                mapBtn.href = mapUrl;
+                mapBtn.style.visibility = 'visible';
             }
-        }, 100);
+        }, 80);
     }
 
     function closeOverlay() {
         document.getElementById('randomOverlay').style.display = 'none';
     }
 
-    // (其餘原本的切換、編輯、刪除 function 保持不變)
     function toggleReview(btn) {
         const container = btn.closest('.shop-item').querySelector('.review-container');
         const isVisible = container.style.display === 'block';
