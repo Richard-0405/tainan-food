@@ -15,53 +15,62 @@
             --bg: #f8f9fa;
             --accent: #6c5ce7;
         }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); padding: 20px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); padding: 15px; }
         .container { max-width: 800px; margin: auto; }
         
-        /* 標題與抽籤按鈕 */
         .header-area { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        h1 { margin: 0; color: #333; font-size: 1.5rem; }
-        .btn-random { background: var(--accent); color: white; border: none; padding: 10px 18px; border-radius: 50px; cursor: pointer; font-size: 1rem; box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3); transition: 0.3s; font-weight: bold; }
-        .btn-random:hover { transform: scale(1.05); background: #5b4cc4; }
+        h1 { margin: 0; color: #333; font-size: 1.4rem; }
+        .btn-random { background: var(--accent); color: white; border: none; padding: 8px 15px; border-radius: 50px; cursor: pointer; font-size: 0.9rem; box-shadow: 0 4px 10px rgba(108, 92, 231, 0.2); transition: 0.3s; font-weight: bold; }
 
-        /* 輸入框與分類 */
-        .input-group { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-        input, select, button { padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem; }
-        input[type="text"] { flex: 2; min-width: 150px; }
+        .input-group { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 15px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+        input, select, button { padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.95rem; }
+        input[type="text"] { flex: 2; min-width: 140px; }
         button { background: var(--primary); color: white; border: none; cursor: pointer; font-weight: bold; }
         .btn-add-cat { background: var(--secondary); }
 
-        .category-section { margin-bottom: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .category-title { background: #4834d4; color: white; padding: 12px 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
-        .cat-title-left { display: flex; align-items: center; gap: 10px; cursor: pointer; flex-grow: 1; }
+        .category-section { margin-bottom: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .category-title { background: #4834d4; color: white; padding: 10px 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .cat-title-left { display: flex; align-items: center; gap: 8px; cursor: pointer; flex-grow: 1; }
         
         .shop-list { list-style: none; padding: 0; margin: 0; border: 1px solid #ddd; border-top: none; border-radius: 0 0 8px 8px; }
         .shop-list.collapsed { display: none; }
         
-        .shop-item { padding: 15px; border-bottom: 1px solid #eee; display: flex; flex-direction: column; background: white; transition: background 0.2s; }
+        .shop-item { padding: 12px 15px; border-bottom: 1px solid #eee; display: flex; flex-direction: column; background: white; }
         .shop-main-row { display: flex; align-items: center; width: 100%; }
-        .rank-badge { background: #eee; min-width: 25px; height: 25px; display: flex; align-items: center; justify-content: center; border-radius: 50%; margin-right: 15px; font-size: 0.8rem; font-weight: bold; }
+        .rank-badge { background: #f1f2f6; min-width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; border-radius: 50%; margin-right: 12px; font-size: 0.75rem; font-weight: bold; color: #747d8c; }
         .info { flex-grow: 1; }
-        .info strong { font-size: 1.1rem; color: #2d3436; }
+        .info strong { font-size: 1rem; color: #2d3436; }
+        .info small { display: block; color: var(--secondary); font-size: 0.85rem; margin-top: 2px; }
         
-        /* 🌟 心得與收合 */
-        .review-container { margin-top: 10px; padding: 10px; background: #fff9db; border-left: 4px solid #f1c40f; border-radius: 4px; display: none; }
-        .review-toggle-btn { background: none; border: none; color: #f39c12; cursor: pointer; margin-left: 10px; }
+        /* 🌟 縮小後的功能鍵樣式 */
+        .actions { display: flex; gap: 5px; align-items: center; margin-left: 10px; }
+        .actions button, .actions a {
+            background: #f8f9fa;
+            border: 1px solid #eee;
+            padding: 4px;
+            width: 32px; /* 固定寬度讓它們整齊 */
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            cursor: pointer;
+            font-size: 1rem; /* 控制 emoji 大小 */
+            transition: 0.2s;
+        }
+        .actions button:hover, .actions a:hover { background: #eef2f5; border-color: #ccc; }
+        .review-toggle-btn { color: #f39c12; }
 
-        /* 🌟 隨機抽籤彈窗樣式 */
+        .review-container { margin-top: 8px; padding: 10px; background: #fff9db; border-left: 3px solid #f1c40f; border-radius: 4px; display: none; font-size: 0.9rem; }
+
+        /* 隨機抽籤彈窗 */
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .random-card { background: white; padding: 30px; border-radius: 20px; text-align: center; max-width: 320px; width: 85%; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .random-card h2 { color: var(--accent); margin-top: 0; font-size: 1.4rem; }
-        .random-card .shop-name { font-size: 1.6rem; font-weight: bold; margin: 15px 0; color: #333; }
+        .random-card { background: white; padding: 25px; border-radius: 20px; text-align: center; max-width: 300px; width: 85%; animation: popIn 0.3s ease; }
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } }
+        .btn-random-map { display: block; background: #00b894; color: white; padding: 10px; border-radius: 10px; text-decoration: none; font-weight: bold; margin-bottom: 10px; }
         
-        .btn-random-map { display: block; background: #00b894; color: white; padding: 12px; border-radius: 12px; text-decoration: none; font-weight: bold; margin-bottom: 10px; transition: 0.3s; }
-        .btn-random-map:hover { background: #00a087; transform: translateY(-2px); }
-        
-        .btn-close-overlay { display: block; background: #eee; color: #333; padding: 12px; border-radius: 12px; margin-bottom: 10px; width: 100%; font-weight: bold; border: none; cursor: pointer; }
-        .btn-random-secondary { display: block; background: var(--accent); color: white; padding: 12px; border-radius: 12px; width: 100%; font-weight: bold; border: none; cursor: pointer; }
-
-        .drag-handle { cursor: grab; color: #ccc; margin-right: 10px; display: none; }
+        .drag-handle { cursor: grab; color: #ddd; margin-right: 8px; display: none; font-size: 1.2rem; }
     </style>
 </head>
 <body>
@@ -73,15 +82,13 @@
     </div>
 
     <div class="input-group category-group">
-        <strong>📁 新增類別：</strong>
-        <input type="text" id="newCategoryName" placeholder="例如：日式拉麵...">
-        <button class="btn-add-cat" onclick="addNewCategory()">+ 建立類別</button>
+        <input type="text" id="newCategoryName" placeholder="📁 新增類別 (如：甜點)">
+        <button class="btn-add-cat" onclick="addNewCategory()">+ 建立</button>
     </div>
 
     <div class="input-group">
-        <strong>🏪 新增店家：</strong>
-        <input type="text" id="shopName" placeholder="店名...">
-        <input type="text" id="shopAddr" placeholder="網址或備註...">
+        <input type="text" id="shopName" placeholder="🏪 店名">
+        <input type="text" id="shopAddr" placeholder="📍 備註/網址">
         <select id="categorySelect"></select>
         <button onclick="addShop()">新增</button>
     </div>
@@ -93,19 +100,16 @@
 
 <div id="randomOverlay" class="overlay">
     <div class="random-card">
-        <h2>🎉 今天就吃...</h2>
-        <div id="randomResult" class="shop-name">載入中...</div>
-        <div id="randomCategory" style="color: #888; margin-bottom: 20px; font-size: 0.9rem;"></div>
-        
+        <h2 style="color: var(--accent);">🎉 今天吃這間！</h2>
+        <div id="randomResult" style="font-size: 1.5rem; font-weight: bold; margin: 15px 0;"></div>
+        <div id="randomCategory" style="color: #888; margin-bottom: 15px;"></div>
         <a id="randomMapBtn" href="#" target="_blank" class="btn-random-map">🔍 前往地圖</a>
-        
-        <button class="btn-close-overlay" onclick="closeOverlay()">太棒了！</button>
-        <button class="btn-random-secondary" onclick="pickRandomShop()">再抽一次 🔄</button>
+        <button onclick="closeOverlay()" style="background:#eee; color:#333; width:100%; padding:10px; border-radius:10px; margin-bottom:8px;">太棒了</button>
+        <button onclick="pickRandomShop()" style="background:var(--accent); color:white; width:100%; padding:10px; border-radius:10px;">再抽一次 🔄</button>
     </div>
 </div>
 
 <script>
-    // Firebase 設定
     const firebaseConfig = {
         apiKey: "AIzaSyB90vqYZY_2QM0IBZcJjGcvtmshLsJ89U0",
         authDomain: "food-store-8be2a.firebaseapp.com",
@@ -118,7 +122,6 @@
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-    
     const container = document.getElementById('listsContainer');
     const selectElement = document.getElementById('categorySelect');
     let isSyncing = false;
@@ -136,7 +139,7 @@
         const data = [];
         document.querySelectorAll('.category-section').forEach(section => {
             const catId = section.id.replace('section-', '');
-            const catName = section.querySelector('strong').innerText;
+            const catName = section.querySelector('#name-'+catId).innerText;
             const isCollapsed = section.querySelector('.shop-list').classList.contains('collapsed');
             const shops = [];
             section.querySelectorAll('.shop-item').forEach(item => {
@@ -178,9 +181,9 @@
                     <strong id="name-${catId}">${catName}</strong>
                 </div>
                 <div class="cat-actions">
-                    <button class="btn-lock" id="lock-${catId}" onclick="toggleSortMode('${catId}')" style="background:none; border:none; cursor:pointer; color:white; font-size:1.2rem;">🔒</button>
-                    <button onclick="editCategory('${catId}')" style="background:none; border:none; cursor:pointer; color:white;">✏️</button>
-                    <button onclick="deleteCategory('${catId}')" style="background:none; border:none; cursor:pointer; color:white;">❌</button>
+                    <button id="lock-${catId}" onclick="toggleSortMode('${catId}')" style="background:none; border:none; padding:4px;">🔒</button>
+                    <button onclick="editCategory('${catId}')" style="background:none; border:none; padding:4px;">✏️</button>
+                    <button onclick="deleteCategory('${catId}')" style="background:none; border:none; padding:4px;">❌</button>
                 </div>
             </div>
             <ul class="shop-list ${isCollapsed ? 'collapsed' : ''}" id="${catId}"></ul>
@@ -207,21 +210,20 @@
                 <div class="rank-badge"></div>
                 <div class="info">
                     <strong>${name}</strong>
-                    <small style="display:block; color:#0984e3; word-break:break-all;">${safeAddr || '（無備註）'}</small>
+                    <small>${safeAddr || '（無備註）'}</small>
                 </div>
                 <div class="actions">
-                    <button class="review-toggle-btn" onclick="toggleReview(this)">${review ? '💬' : '➕'}</button>
-                    <a href="${mapUrl}" target="_blank" style="text-decoration:none;">🔍</a>
-                    <button onclick="deleteShop(this, '${catId}')" style="background:none; border:none; cursor:pointer;">❌</button>
+                    <button class="review-toggle-btn" onclick="toggleReview(this)" title="查看心得">${review ? '💬' : '➕'}</button>
+                    <a href="${mapUrl}" target="_blank" title="打開地圖">🔍</a>
+                    <button onclick="deleteShop(this, '${catId}')" title="刪除店家">❌</button>
                 </div>
             </div>
-            <div class="review-container" onclick="editReview(this.parentElement.querySelector('.review-toggle-btn'))">${review || '點擊編輯心得...'}</div>
+            <div class="review-container" onclick="editReview(this.parentElement.querySelector('.review-toggle-btn'))">${review || '尚未寫下心得...點此編輯'}</div>
         `;
         list.appendChild(li);
         updateRanks(catId);
     }
 
-    // 🌟 隨機抽籤邏輯 (更新版：包含地圖按鈕處理)
     function pickRandomShop() {
         const allShops = [];
         document.querySelectorAll('.category-section').forEach(section => {
@@ -235,7 +237,7 @@
             });
         });
 
-        if (allShops.length === 0) return alert("清單裡還沒有店喔，快去新增吧！");
+        if (allShops.length === 0) return alert("清單是空的喔！");
 
         const overlay = document.getElementById('randomOverlay');
         const resultEl = document.getElementById('randomResult');
@@ -243,91 +245,64 @@
         const mapBtn = document.getElementById('randomMapBtn');
         
         overlay.style.display = 'flex';
-        resultEl.innerText = "正在挑選...";
-        catEl.innerText = "";
-        mapBtn.style.visibility = 'hidden'; // 轉動時先隱藏地圖按鈕
+        resultEl.innerText = "🎲 挑選中...";
+        mapBtn.style.display = 'none';
 
-        let count = 0;
-        const timer = setInterval(() => {
-            const tempRandom = allShops[Math.floor(Math.random() * allShops.length)];
-            resultEl.innerText = tempRandom.name;
-            count++;
-            if (count > 10) {
-                clearInterval(timer);
-                const finalPick = allShops[Math.floor(Math.random() * allShops.length)];
-                resultEl.innerText = finalPick.name;
-                catEl.innerText = "分類：" + finalPick.category;
-                
-                // 設定地圖按鈕連結
-                const isUrl = finalPick.addr.trim().startsWith('http');
-                const mapUrl = isUrl ? finalPick.addr.trim() : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(finalPick.name)}`;
-                mapBtn.href = mapUrl;
-                mapBtn.style.visibility = 'visible';
-            }
-        }, 80);
+        setTimeout(() => {
+            const final = allShops[Math.floor(Math.random() * allShops.length)];
+            resultEl.innerText = final.name;
+            catEl.innerText = "分類：" + final.category;
+            const isUrl = final.addr.trim().startsWith('http');
+            mapBtn.href = isUrl ? final.addr.trim() : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(final.name)}`;
+            mapBtn.style.display = 'block';
+        }, 600);
     }
 
-    function closeOverlay() {
-        document.getElementById('randomOverlay').style.display = 'none';
-    }
-
+    function closeOverlay() { document.getElementById('randomOverlay').style.display = 'none'; }
     function toggleReview(btn) {
         const container = btn.closest('.shop-item').querySelector('.review-container');
-        const isVisible = container.style.display === 'block';
-        container.style.display = isVisible ? 'none' : 'block';
+        container.style.display = (container.style.display === 'block') ? 'none' : 'block';
     }
-
     function editReview(btn) {
         const li = btn.closest('.shop-item');
-        const old = li.getAttribute('data-review') || "";
-        const next = prompt("心得：", old);
+        const next = prompt("心得筆記：", li.getAttribute('data-review') || "");
         if (next !== null) {
             li.setAttribute('data-review', next);
-            li.querySelector('.review-container').innerText = next || '點擊編輯心得...';
+            li.querySelector('.review-container').innerText = next || '尚未寫下心得...點此編輯';
             btn.innerText = next ? '💬' : '➕';
             saveData();
         }
     }
-
     function toggleSortMode(catId) {
         const btn = document.getElementById(`lock-${catId}`);
         const instance = sortableInstances[catId];
-        const listEl = document.getElementById(catId);
-        if (btn.innerText === "🔒") {
-            btn.innerText = "🔓"; instance.option("disabled", false);
-            listEl.querySelectorAll('.drag-handle').forEach(h => h.style.display = 'block');
-        } else {
-            btn.innerText = "🔒"; instance.option("disabled", true);
-            listEl.querySelectorAll('.drag-handle').forEach(h => h.style.display = 'none');
-        }
+        const isLocked = btn.innerText === "🔒";
+        btn.innerText = isLocked ? "🔓" : "🔒";
+        instance.option("disabled", !isLocked);
+        document.getElementById(catId).querySelectorAll('.drag-handle').forEach(h => h.style.display = isLocked ? 'block' : 'none');
     }
-
     function toggleCategory(catId) {
         const list = document.getElementById(catId);
-        const icon = document.getElementById(`icon-${catId}`);
         list.classList.toggle('collapsed');
-        icon.innerText = list.classList.contains('collapsed') ? '▶' : '▼';
+        document.getElementById(`icon-${catId}`).innerText = list.classList.contains('collapsed') ? '▶' : '▼';
         saveData();
     }
-
     function addNewCategory() {
         const name = document.getElementById('newCategoryName').value.trim();
         if (name) { createCategorySection(name); saveData(); document.getElementById('newCategoryName').value = ''; }
     }
-
     function addShop() {
         const name = document.getElementById('shopName').value.trim();
         const addr = document.getElementById('shopAddr').value.trim();
         const catId = selectElement.value;
         if (name && catId) { createShopItem(catId, name, addr); saveData(); document.getElementById('shopName').value = ''; document.getElementById('shopAddr').value = ''; }
     }
-
-    function deleteShop(btn, catId) { if(confirm("確定刪除？")) { btn.closest('.shop-item').remove(); updateRanks(catId); saveData(); } }
-    function deleteCategory(catId) { if(confirm("確定刪除整個類別？")) { document.getElementById(`section-${catId}`).remove(); saveData(); } }
+    function deleteShop(btn, catId) { if(confirm("確定刪除這間店？")) { btn.closest('.shop-item').remove(); updateRanks(catId); saveData(); } }
+    function deleteCategory(catId) { if(confirm("確定刪除整個分類？")) { document.getElementById(`section-${catId}`).remove(); saveData(); } }
     function editCategory(catId) {
         const el = document.getElementById(`name-${catId}`);
-        const newName = prompt("修改類別名稱：", el.innerText);
-        if(newName) { el.innerText = newName; saveData(); }
+        const next = prompt("修改類別名稱：", el.innerText);
+        if(next) { el.innerText = next; saveData(); }
     }
     function updateRanks(catId) { document.querySelectorAll(`#${catId} .rank-badge`).forEach((item, i) => { item.innerText = i + 1; }); }
 </script>
