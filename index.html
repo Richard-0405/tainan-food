@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>台南美食導航清單</title>
+    <title>台南美食清單</title>
     
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -44,7 +44,7 @@
         .category-title { background: #4834d4; color: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; }
         .cat-title-left { display: flex; align-items: center; gap: 8px; cursor: pointer; flex-grow: 1; }
         .cat-actions { display: flex; gap: 5px; }
-        .cat-actions button { background: rgba(255,255,255,0.1); padding: 5px; width: 30px; height: 30px; font-size: 0.8rem; }
+        .cat-actions button { background: rgba(255,255,255,0.1); padding: 5px; width: 30px; height: 30px; font-size: 0.8rem; transition: 0.3s; }
 
         /* 店家清單項目 */
         .shop-list { list-style: none; padding: 0; margin: 0; min-height: 5px; }
@@ -158,20 +158,18 @@
             const place = autocomplete.getPlace();
             if (!place.name) return;
             document.getElementById('shopName').value = place.name;
-            // 🌟 讓地址欄位只填入純文字地址
             document.getElementById('shopAddr').value = place.formatted_address || "";
-            // 🌟 把網址存到隱藏欄位
             document.getElementById('shopUrl').value = place.url || "";
         });
     }
 
-    // 3. 核心功能：抽籤老虎機動畫
+    // 3. 抽籤老虎機動畫
     function pickRandomShop() {
         const allShops = [];
         document.querySelectorAll('.shop-item').forEach(item => {
             allShops.push({
                 name: item.querySelector('strong').innerText,
-                url: item.getAttribute('data-url'), // 取出專屬連結
+                url: item.getAttribute('data-url'),
                 cat: item.closest('.category-section').querySelector('strong').innerText
             });
         });
@@ -204,9 +202,7 @@
                 slotLabel.innerText = final.name;
                 slotLabel.style.color = 'var(--primary)';
                 document.getElementById('finalCat').innerText = "所屬類別：" + final.cat;
-                
-                const mapBtn = document.getElementById('randomMapBtn');
-                mapBtn.href = final.url; // 使用存好的連結
+                document.getElementById('randomMapBtn').href = final.url;
                 
                 resultActions.style.display = 'block';
                 randomCard.classList.add('animate-pop');
@@ -237,7 +233,7 @@
                 shops.push({
                     name: item.querySelector('strong').innerText,
                     addr: item.getAttribute('data-addr'),
-                    url: item.getAttribute('data-url'), // 儲存網址
+                    url: item.getAttribute('data-url'),
                     review: item.getAttribute('data-review') || ""
                 });
             });
@@ -252,7 +248,6 @@
         dataToLoad.forEach(cat => {
             createCategorySection(cat.name, cat.id, cat.collapsed);
             if (cat.shops) {
-                // 傳入 url
                 cat.shops.forEach(shop => createShopItem(cat.id, shop.name, shop.addr, shop.url, shop.review));
             }
         });
@@ -282,21 +277,20 @@
             <ul class="shop-list ${isCollapsed ? 'collapsed' : ''}" id="${catId}"></ul>
         `;
         container.appendChild(section);
+        
+        // 🌟 關鍵修改一：拖曳放開時只更新數字，不存檔！
         sortableInstances[catId] = new Sortable(document.getElementById(catId), {
             animation: 150, handle: '.drag-handle', disabled: true,
-            onEnd: () => { updateRanks(catId); saveData(); }
+            onEnd: () => { updateRanks(catId); /* 拿掉 saveData() */ } 
         });
     }
 
-    // 🌟 新增 url 參數
     function createShopItem(catId, name, addr, url, review = "") {
         const list = document.getElementById(catId);
         const displayAddr = addr || "（無備註地址）";
         
-        // 確保導航按鈕有連結 (如果沒有 Google 的專屬 URL，就用備用的地圖搜尋網址)
         let mapLink = url;
         if (!mapLink) {
-            // 處理手動貼上網址在地址欄的情況
             if (addr && addr.startsWith('http')) {
                 mapLink = addr;
             } else {
@@ -307,7 +301,7 @@
         const li = document.createElement('li');
         li.className = 'shop-item';
         li.setAttribute('data-addr', addr);
-        li.setAttribute('data-url', mapLink); // 存入屬性中
+        li.setAttribute('data-url', mapLink);
         li.setAttribute('data-review', review);
         li.innerHTML = `
             <div class="shop-main-row">
@@ -335,10 +329,8 @@
         list.classList.toggle('collapsed');
         document.getElementById(`icon-${catId}`).innerText = list.classList.contains('collapsed') ? '▶' : '▼';
         
-        // 更新標題圓角樣式
         const titleBar = list.previousElementSibling;
         titleBar.style.borderRadius = list.classList.contains('collapsed') ? '10px' : '10px 10px 0 0';
-        
         saveData();
     }
 
@@ -358,13 +350,26 @@
         }
     }
 
+    // 🌟 關鍵修改二：開關結束時才觸發儲存
     function toggleSortMode(catId) {
         const btn = document.getElementById(`lock-${catId}`);
         const inst = sortableInstances[catId];
-        const locked = btn.innerText === "🔒";
-        btn.innerText = locked ? "🔓" : "🔒";
-        inst.option("disabled", !locked);
-        document.getElementById(catId).querySelectorAll('.drag-handle').forEach(h => h.style.display = locked ? 'block' : 'none');
+        const isLocked = btn.innerText === "🔒";
+        
+        if (isLocked) {
+            // 變成解鎖狀態：開始排序 (紅色提示)
+            btn.innerText = "🔓";
+            btn.style.background = "#e17055"; // 變成橘紅色提醒
+            inst.option("disabled", false);
+            document.getElementById(catId).querySelectorAll('.drag-handle').forEach(h => h.style.display = 'block');
+        } else {
+            // 變成鎖定狀態：結束排序並存檔
+            btn.innerText = "🔒";
+            btn.style.background = "rgba(255,255,255,0.1)"; // 恢復原本顏色
+            inst.option("disabled", true);
+            document.getElementById(catId).querySelectorAll('.drag-handle').forEach(h => h.style.display = 'none');
+            saveData(); // ✨ 使用者自己決定排序完畢，這時候才存檔！
+        }
     }
 
     function addNewCategory() {
@@ -375,7 +380,7 @@
     function addShop() {
         const name = document.getElementById('shopName').value.trim();
         const addr = document.getElementById('shopAddr').value.trim();
-        const url = document.getElementById('shopUrl').value.trim(); // 取出隱藏的網址
+        const url = document.getElementById('shopUrl').value.trim();
         const catId = selectElement.value;
         if (name && catId) { 
             createShopItem(catId, name, addr, url); 
@@ -395,7 +400,6 @@
     }
     function updateRanks(cid) { document.querySelectorAll(`#${cid} .rank-badge`).forEach((item, i) => { item.innerText = i + 1; }); }
 
-    // 初始化 Google Autocomplete
     window.onload = initAutocomplete;
 </script>
 
