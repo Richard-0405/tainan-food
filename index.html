@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>台南美食導航清單</title>
+    <title>台南美食清單</title>
+    
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -16,100 +17,123 @@
             --secondary: #0984e3;
             --bg: #f8f9fa;
             --accent: #6c5ce7;
+            --success: #00b894;
         }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); padding: 15px; }
-        .container { max-width: 800px; margin: auto; }
         
+        body { font-family: 'Segoe UI', "Microsoft JhengHei", sans-serif; background-color: var(--bg); padding: 15px; margin: 0; }
+        .container { max-width: 800px; margin: auto; }
+
+        /* 頂部標題 */
         .header-area { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         h1 { margin: 0; color: #333; font-size: 1.4rem; }
-        .btn-random { background: var(--accent); color: white; border: none; padding: 8px 15px; border-radius: 50px; cursor: pointer; font-size: 0.9rem; font-weight: bold; box-shadow: 0 4px 10px rgba(108,92,231,0.2); }
+        .btn-random { background: var(--accent); color: white; border: none; padding: 10px 20px; border-radius: 50px; cursor: pointer; font-size: 0.9rem; font-weight: bold; box-shadow: 0 4px 10px rgba(108,92,231,0.2); transition: 0.3s; }
+        .btn-random:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(108,92,231,0.3); }
 
-        .input-group { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 15px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-        input, select, button { padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.95rem; }
-        input[type="text"] { flex: 2; min-width: 140px; }
-        
-        /* Google 建議清單的樣式微調 */
-        .pac-container { border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border: none; font-family: sans-serif; }
+        /* 輸入區塊 */
+        .card { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 15px; }
+        .input-group { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+        input, select, button { padding: 10px; border: 1px solid #eee; border-radius: 8px; font-size: 0.95rem; outline: none; }
+        input[type="text"] { flex: 2; min-width: 150px; transition: 0.3s; }
+        input:focus { border-color: var(--secondary); box-shadow: 0 0 0 3px rgba(9, 132, 227, 0.1); }
+        button { background: var(--primary); color: white; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        button:active { transform: scale(0.95); }
+        .btn-add-cat { background: var(--secondary); white-space: nowrap; }
 
-        button { background: var(--primary); color: white; border: none; cursor: pointer; font-weight: bold; }
-        .btn-add-cat { background: var(--secondary); }
-
-        .category-section { margin-bottom: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .category-title { background: #4834d4; color: white; padding: 10px 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
+        /* 類別區塊 */
+        .category-section { margin-bottom: 15px; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .category-title { background: #4834d4; color: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; }
         .cat-title-left { display: flex; align-items: center; gap: 8px; cursor: pointer; flex-grow: 1; }
-        
-        .shop-list { list-style: none; padding: 0; margin: 0; border: 1px solid #ddd; border-top: none; border-radius: 0 0 8px 8px; min-height: 10px; }
+        .cat-actions { display: flex; gap: 5px; }
+        .cat-actions button { background: rgba(255,255,255,0.1); padding: 5px; width: 30px; height: 30px; font-size: 0.8rem; }
+
+        /* 店家清單項目 */
+        .shop-list { list-style: none; padding: 0; margin: 0; min-height: 5px; }
         .shop-list.collapsed { display: none; }
-        
-        .shop-item { padding: 12px 15px; border-bottom: 1px solid #eee; display: flex; flex-direction: column; background: white; }
+        .shop-item { padding: 12px 15px; border-bottom: 1px solid #f1f1f1; display: flex; flex-direction: column; background: white; }
         .shop-main-row { display: flex; align-items: center; width: 100%; }
-        .rank-badge { background: #f1f2f6; min-width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; border-radius: 50%; margin-right: 12px; font-size: 0.75rem; font-weight: bold; color: #747d8c; }
+        .rank-badge { background: #f1f2f6; min-width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 50%; margin-right: 12px; font-size: 0.75rem; font-weight: bold; color: #747d8c; }
         .info { flex-grow: 1; overflow: hidden; }
         .info strong { font-size: 1rem; color: #2d3436; display: block; }
-        .info small { display: block; color: var(--secondary); font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .info small { display: block; color: #636e72; font-size: 0.85rem; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
-        .actions { display: flex; gap: 5px; align-items: center; margin-left: 10px; }
+        /* 🌟 縮小後的功能鍵 */
+        .actions { display: flex; gap: 6px; margin-left: 10px; }
         .actions button, .actions a {
-            background: #f8f9fa; border: 1px solid #eee; padding: 4px; width: 32px; height: 32px; border-radius: 6px;
-            display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 1rem; cursor: pointer;
+            background: #f8f9fa; border: 1px solid #eee; padding: 0; width: 32px; height: 32px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 0.9rem; cursor: pointer; transition: 0.2s;
         }
+        .actions button:hover, .actions a:hover { background: #eef2f5; border-color: #ddd; }
 
-        .review-container { margin-top: 8px; padding: 10px; background: #fff9db; border-left: 3px solid #f1c40f; border-radius: 4px; display: none; font-size: 0.9rem; }
+        /* 心得容器 */
+        .review-container { margin-top: 10px; padding: 10px; background: #fff9db; border-left: 4px solid #f1c40f; border-radius: 4px; display: none; font-size: 0.9rem; color: #5d5d5d; cursor: pointer; }
 
-        /* 彈窗樣式 */
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .random-card { background: white; padding: 25px; border-radius: 20px; text-align: center; max-width: 300px; width: 85%; }
-        .btn-random-map { display: block; background: #00b894; color: white; padding: 10px; border-radius: 10px; text-decoration: none; font-weight: bold; margin-bottom: 10px; }
+        /* 🌟 抽籤老虎機彈窗 */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 2000; backdrop-filter: blur(4px); }
+        .random-card { background: white; padding: 30px; border-radius: 24px; text-align: center; width: 85%; max-width: 350px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+        .slot-machine { font-size: 1.8rem; font-weight: bold; height: 40px; overflow: hidden; margin: 25px 0; color: var(--accent); position: relative; }
+        .slot-name { display: block; transition: transform 0.1s linear; }
         
-        .drag-handle { cursor: grab; color: #ddd; margin-right: 8px; display: none; }
+        @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .animate-pop { animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        
+        .btn-map-result { background: var(--success); color: white; padding: 12px; border-radius: 12px; display: block; text-decoration: none; font-weight: bold; margin: 15px 0; }
+        .drag-handle { cursor: grab; color: #ccc; margin-right: 8px; display: none; font-size: 1.2rem; }
+
+        /* Google 建議下拉選單寬度修正 */
+        .pac-container { border-radius: 8px; margin-top: 5px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border: none; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header-area">
-        <h1>🍴 台南美食導航</h1>
+        <h1>🍴 台南美食清單</h1>
         <button class="btn-random" onclick="pickRandomShop()">🎲 幫我選一個！</button>
     </div>
 
-    <div class="input-group category-group">
-        <input type="text" id="newCategoryName" placeholder="📁 新增類別 (如：宵夜)">
-        <button class="btn-add-cat" onclick="addNewCategory()">+ 建立</button>
+    <div class="card input-group">
+        <input type="text" id="newCategoryName" placeholder="📁 新增類別 (如：甜點、火鍋)">
+        <button class="btn-add-cat" onclick="addNewCategory()">+ 建立類別</button>
     </div>
 
-    <div class="input-group">
-        <input type="text" id="shopName" placeholder="🏪 輸入店名 (自動建議)">
-        <input type="text" id="shopAddr" placeholder="📍 地址/連結 (自動填入)">
+    <div class="card input-group">
+        <input type="text" id="shopName" placeholder="🏪 輸入店名 (Google 會建議)">
+        <input type="text" id="shopAddr" placeholder="📍 地址或網址 (自動填入)">
         <select id="categorySelect"></select>
-        <button onclick="addShop()">新增</button>
+        <button onclick="addShop()">新增至清單</button>
     </div>
 
     <div id="listsContainer">
-        <p style="text-align:center; color:#888;">雲端同步中...</p>
+        <p style="text-align:center; color:#999; margin-top: 40px;">讀取雲端資料中...</p>
     </div>
 </div>
 
 <div id="randomOverlay" class="overlay">
-    <div class="random-card">
-        <h2 style="color: var(--accent);">🎉 今天吃這間！</h2>
-        <div id="randomResult" style="font-size: 1.5rem; font-weight: bold; margin: 15px 0;"></div>
-        <div id="randomCategory" style="color: #888; margin-bottom: 15px;"></div>
-        <a id="randomMapBtn" href="#" target="_blank" class="btn-random-map">🔍 前往地圖</a>
-        <button onclick="closeOverlay()" style="background:#eee; color:#333; width:100%; padding:10px; border-radius:10px; margin-bottom:8px; border:none; cursor:pointer;">太棒了</button>
-        <button onclick="pickRandomShop()" style="background:var(--accent); color:white; width:100%; padding:10px; border-radius:10px; border:none; cursor:pointer;">再抽一次 🔄</button>
+    <div class="random-card" id="randomCard">
+        <h2 style="color: #636e72; font-size: 1.1rem; margin: 0;">🎉 今天就吃...</h2>
+        <div class="slot-machine">
+            <div id="slotLabel" class="slot-name">準備開獎...</div>
+        </div>
+        <div id="finalCat" style="color: #b2bec3; font-size: 0.9rem; margin-bottom: 10px;"></div>
+        
+        <div id="resultActions" style="display: none;">
+            <a id="randomMapBtn" href="#" target="_blank" class="btn-map-result">🔍 開啟導航</a>
+            <button onclick="closeOverlay()" style="background:#f1f2f6; color:#333; width:100%; padding:10px; border-radius:10px; border:none; margin-bottom:10px;">太棒了</button>
+            <button onclick="pickRandomShop()" style="background:var(--accent); color:white; width:100%; padding:10px; border-radius:10px; border:none;">再抽一次 🔄</button>
+        </div>
     </div>
 </div>
 
 <script>
-    // Firebase 初始化
+    // 1. Firebase 初始化
     const firebaseConfig = {
         apiKey: "AIzaSyB90vqYZY_2QM0IBZcJjGcvtmshLsJ89U0",
         authDomain: "food-store-8be2a.firebaseapp.com",
         projectId: "food-store-8be2a",
         storageBucket: "food-store-8be2a.firebasestorage.app",
+        databaseURL: "https://food-store-8be2a-default-rtdb.firebaseio.com", // 確保資料庫網址正確
         messagingSenderId: "307868347359",
-        appId: "1:307868347359:web:78cb5bbaa6d82970c0726a",
-        measurementId: "G-SGB5C4TY7K"
+        appId: "1:307868347359:web:78cb5bbaa6d82970c0726a"
     };
 
     firebase.initializeApp(firebaseConfig);
@@ -119,7 +143,7 @@
     let isSyncing = false;
     let sortableInstances = {};
 
-    // 🌟 Google Places Autocomplete 初始化
+    // 2. Google Autocomplete 初始化
     function initAutocomplete() {
         const input = document.getElementById('shopName');
         const options = {
@@ -132,26 +156,69 @@
         autocomplete.addListener('place_changed', () => {
             const place = autocomplete.getPlace();
             if (!place.name) return;
-
             document.getElementById('shopName').value = place.name;
-            // 優先存入地圖 URL，若無則存地址
+            // 優先存入網址，若無網址存地址
             document.getElementById('shopAddr').value = place.url || place.formatted_address;
-
-            // 視覺提示
-            document.getElementById('shopName').style.background = '#e3f2fd';
-            document.getElementById('shopAddr').style.background = '#e3f2fd';
-            setTimeout(() => {
-                document.getElementById('shopName').style.background = 'white';
-                document.getElementById('shopAddr').style.background = 'white';
-            }, 500);
         });
     }
-    window.onload = initAutocomplete;
 
+    // 3. 核心功能：抽籤老虎機動畫
+    function pickRandomShop() {
+        const allShops = [];
+        document.querySelectorAll('.shop-item').forEach(item => {
+            allShops.push({
+                name: item.querySelector('strong').innerText,
+                addr: item.getAttribute('data-addr'),
+                cat: item.closest('.category-section').querySelector('strong').innerText
+            });
+        });
+
+        if (allShops.length === 0) return alert("清單裡還沒有食物喔！");
+
+        const overlay = document.getElementById('randomOverlay');
+        const slotLabel = document.getElementById('slotLabel');
+        const resultActions = document.getElementById('resultActions');
+        const randomCard = document.getElementById('randomCard');
+
+        overlay.style.display = 'flex';
+        resultActions.style.display = 'none';
+        randomCard.classList.remove('animate-pop');
+        slotLabel.style.color = 'var(--accent)';
+        
+        let count = 0;
+        let speed = 60;
+        const totalSpins = 20;
+
+        const spin = () => {
+            const temp = allShops[Math.floor(Math.random() * allShops.length)];
+            slotLabel.innerText = temp.name;
+            count++;
+
+            if (count < totalSpins) {
+                setTimeout(spin, speed + (count * 4));
+            } else {
+                const final = allShops[Math.floor(Math.random() * allShops.length)];
+                slotLabel.innerText = final.name;
+                slotLabel.style.color = 'var(--primary)';
+                document.getElementById('finalCat').innerText = "所屬類別：" + final.cat;
+                
+                const mapBtn = document.getElementById('randomMapBtn');
+                mapBtn.href = final.addr.startsWith('http') ? final.addr : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(final.name + ' ' + final.addr)}`;
+                
+                resultActions.style.display = 'block';
+                randomCard.classList.add('animate-pop');
+            }
+        };
+        spin();
+    }
+
+    function closeOverlay() { document.getElementById('randomOverlay').style.display = 'none'; }
+
+    // 4. Firebase 資料處理
     db.ref('sharedFoodList').on('value', (snapshot) => {
-        const data = snapshot.val();
         isSyncing = true;
-        if (data) renderAllData(data);
+        const data = snapshot.val();
+        renderAllData(data || []);
         isSyncing = false;
     });
 
@@ -165,8 +232,8 @@
             const shops = [];
             section.querySelectorAll('.shop-item').forEach(item => {
                 shops.push({
-                    name: item.querySelector('.info strong').innerText,
-                    addr: item.querySelector('.info small').innerText,
+                    name: item.querySelector('strong').innerText,
+                    addr: item.getAttribute('data-addr'),
                     review: item.getAttribute('data-review') || ""
                 });
             });
@@ -196,15 +263,15 @@
         section.className = 'category-section';
         section.id = 'section-' + catId;
         section.innerHTML = `
-            <div class="category-title" style="border-radius: ${isCollapsed ? '8px' : '8px 8px 0 0'}">
+            <div class="category-title" style="border-radius: ${isCollapsed ? '10px' : '10px 10px 0 0'}">
                 <div class="cat-title-left" onclick="toggleCategory('${catId}')">
                     <span id="icon-${catId}">${isCollapsed ? '▶' : '▼'}</span>
                     <strong id="name-${catId}">${catName}</strong>
                 </div>
                 <div class="cat-actions">
-                    <button id="lock-${catId}" onclick="toggleSortMode('${catId}')" style="background:none; border:none; color:white;">🔒</button>
-                    <button onclick="editCategory('${catId}')" style="background:none; border:none; color:white;">✏️</button>
-                    <button onclick="deleteCategory('${catId}')" style="background:none; border:none; color:white;">❌</button>
+                    <button id="lock-${catId}" onclick="toggleSortMode('${catId}')">🔒</button>
+                    <button onclick="editCategory('${catId}')">✏️</button>
+                    <button onclick="deleteCategory('${catId}')">❌</button>
                 </div>
             </div>
             <ul class="shop-list ${isCollapsed ? 'collapsed' : ''}" id="${catId}"></ul>
@@ -218,11 +285,11 @@
 
     function createShopItem(catId, name, addr, review = "") {
         const list = document.getElementById(catId);
-        const isUrl = addr.startsWith('http');
-        const mapUrl = isUrl ? addr : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}`;
+        const displayAddr = addr.startsWith('http') ? "📍 查看 Google 地圖商家資訊" : (addr || "（無備註地址）");
 
         const li = document.createElement('li');
         li.className = 'shop-item';
+        li.setAttribute('data-addr', addr);
         li.setAttribute('data-review', review);
         li.innerHTML = `
             <div class="shop-main-row">
@@ -230,56 +297,44 @@
                 <div class="rank-badge"></div>
                 <div class="info">
                     <strong>${name}</strong>
-                    <small>${addr || '（點擊右側搜尋地圖）'}</small>
+                    <small>${displayAddr}</small>
                 </div>
                 <div class="actions">
                     <button onclick="toggleReview(this)">${review ? '💬' : '➕'}</button>
-                    <a href="${mapUrl}" target="_blank">🔍</a>
+                    <a href="${addr.startsWith('http') ? addr : 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(name)}" target="_blank">🔍</a>
                     <button onclick="deleteShop(this, '${catId}')">❌</button>
                 </div>
             </div>
-            <div class="review-container" onclick="editReview(this.parentElement.querySelector('button'))">${review || '點此新增心得筆記...'}</div>
+            <div class="review-container" onclick="editReview(this.parentElement.querySelector('button'))">${review || '點此新增筆記心得...'}</div>
         `;
         list.appendChild(li);
         updateRanks(catId);
     }
 
-    function pickRandomShop() {
-        const all = [];
-        document.querySelectorAll('.shop-item').forEach(item => {
-            all.push({
-                name: item.querySelector('strong').innerText,
-                addr: item.querySelector('small').innerText,
-                cat: item.closest('.category-section').querySelector('strong').innerText
-            });
-        });
-        if (all.length === 0) return alert("清單是空的！");
-
-        const res = all[Math.floor(Math.random() * all.length)];
-        document.getElementById('randomResult').innerText = res.name;
-        document.getElementById('randomCategory').innerText = "分類：" + res.cat;
-        
-        const isUrl = res.addr.startsWith('http');
-        document.getElementById('randomMapBtn').href = isUrl ? res.addr : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(res.name)}`;
-        
-        document.getElementById('randomOverlay').style.display = 'flex';
+    // 5. 輔助功能
+    function toggleCategory(catId) {
+        const list = document.getElementById(catId);
+        list.classList.toggle('collapsed');
+        document.getElementById(`icon-${catId}`).innerText = list.classList.contains('collapsed') ? '▶' : '▼';
+        saveData();
     }
 
-    function closeOverlay() { document.getElementById('randomOverlay').style.display = 'none'; }
     function toggleReview(btn) {
-        const div = btn.closest('.shop-item').querySelector('.review-container');
-        div.style.display = div.style.display === 'block' ? 'none' : 'block';
+        const container = btn.closest('.shop-item').querySelector('.review-container');
+        container.style.display = container.style.display === 'block' ? 'none' : 'block';
     }
+
     function editReview(btn) {
         const li = btn.closest('.shop-item');
-        const next = prompt("吃過的心得：", li.getAttribute('data-review') || "");
+        const next = prompt("這家店評價如何？", li.getAttribute('data-review') || "");
         if (next !== null) {
             li.setAttribute('data-review', next);
-            li.querySelector('.review-container').innerText = next || '點此新增心得筆記...';
+            li.querySelector('.review-container').innerText = next || '點此新增筆記心得...';
             btn.innerText = next ? '💬' : '➕';
             saveData();
         }
     }
+
     function toggleSortMode(catId) {
         const btn = document.getElementById(`lock-${catId}`);
         const inst = sortableInstances[catId];
@@ -288,30 +343,36 @@
         inst.option("disabled", !locked);
         document.getElementById(catId).querySelectorAll('.drag-handle').forEach(h => h.style.display = locked ? 'block' : 'none');
     }
-    function toggleCategory(catId) {
-        const l = document.getElementById(catId);
-        l.classList.toggle('collapsed');
-        document.getElementById(`icon-${catId}`).innerText = l.classList.contains('collapsed') ? '▶' : '▼';
-        saveData();
-    }
+
     function addNewCategory() {
-        const v = document.getElementById('newCategoryName').value.trim();
-        if (v) { createCategorySection(v); saveData(); document.getElementById('newCategoryName').value = ''; }
+        const input = document.getElementById('newCategoryName');
+        if (input.value.trim()) { createCategorySection(input.value.trim()); saveData(); input.value = ''; }
     }
+
     function addShop() {
-        const n = document.getElementById('shopName').value.trim();
-        const a = document.getElementById('shopAddr').value.trim();
-        const c = selectElement.value;
-        if (n && c) { createShopItem(c, n, a); saveData(); document.getElementById('shopName').value = ''; document.getElementById('shopAddr').value = ''; }
+        const name = document.getElementById('shopName').value.trim();
+        const addr = document.getElementById('shopAddr').value.trim();
+        const catId = selectElement.value;
+        if (name && catId) { 
+            createShopItem(catId, name, addr); 
+            saveData(); 
+            document.getElementById('shopName').value = ''; 
+            document.getElementById('shopAddr').value = ''; 
+        }
     }
-    function deleteShop(btn, cid) { if(confirm("刪除？")) { btn.closest('.shop-item').remove(); updateRanks(cid); saveData(); } }
-    function deleteCategory(cid) { if(confirm("刪除整個分類？")) { document.getElementById(`section-${cid}`).remove(); saveData(); } }
+
+    function deleteShop(btn, cid) { if(confirm("確定刪除？")) { btn.closest('.shop-item').remove(); updateRanks(cid); saveData(); } }
+    function deleteCategory(cid) { if(confirm("確定刪除整個類別？")) { document.getElementById(`section-${cid}`).remove(); saveData(); } }
     function editCategory(cid) {
         const el = document.getElementById(`name-${cid}`);
-        const n = prompt("修改類別：", el.innerText);
-        if(n) { el.innerText = n; saveData(); }
+        const next = prompt("修改名稱：", el.innerText);
+        if(next) { el.innerText = next; saveData(); }
     }
     function updateRanks(cid) { document.querySelectorAll(`#${cid} .rank-badge`).forEach((item, i) => { item.innerText = i + 1; }); }
+
+    // 初始化 Google Autocomplete
+    window.onload = initAutocomplete;
 </script>
+
 </body>
 </html>
