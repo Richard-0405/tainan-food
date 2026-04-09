@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>台南美食清單</title>
+    <title>台南美食導航清單</title>
     
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -98,7 +98,8 @@
 
     <div class="card input-group">
         <input type="text" id="shopName" placeholder="🏪 輸入店名 (Google 會建議)">
-        <input type="text" id="shopAddr" placeholder="📍 地址或網址 (自動填入)">
+        <input type="text" id="shopAddr" placeholder="📍 地址 (自動填入文字地址)">
+        <input type="hidden" id="shopUrl">
         <select id="categorySelect"></select>
         <button onclick="addShop()">新增至清單</button>
     </div>
@@ -131,7 +132,7 @@
         authDomain: "food-store-8be2a.firebaseapp.com",
         projectId: "food-store-8be2a",
         storageBucket: "food-store-8be2a.firebasestorage.app",
-        databaseURL: "https://food-store-8be2a-default-rtdb.firebaseio.com", // 確保資料庫網址正確
+        databaseURL: "https://food-store-8be2a-default-rtdb.firebaseio.com",
         messagingSenderId: "307868347359",
         appId: "1:307868347359:web:78cb5bbaa6d82970c0726a"
     };
@@ -157,8 +158,10 @@
             const place = autocomplete.getPlace();
             if (!place.name) return;
             document.getElementById('shopName').value = place.name;
-            // 優先存入網址，若無網址存地址
-            document.getElementById('shopAddr').value = place.url || place.formatted_address;
+            // 🌟 讓地址欄位只填入純文字地址
+            document.getElementById('shopAddr').value = place.formatted_address || "";
+            // 🌟 把網址存到隱藏欄位
+            document.getElementById('shopUrl').value = place.url || "";
         });
     }
 
@@ -168,7 +171,7 @@
         document.querySelectorAll('.shop-item').forEach(item => {
             allShops.push({
                 name: item.querySelector('strong').innerText,
-                addr: item.getAttribute('data-addr'),
+                url: item.getAttribute('data-url'), // 取出專屬連結
                 cat: item.closest('.category-section').querySelector('strong').innerText
             });
         });
@@ -203,7 +206,7 @@
                 document.getElementById('finalCat').innerText = "所屬類別：" + final.cat;
                 
                 const mapBtn = document.getElementById('randomMapBtn');
-                mapBtn.href = final.addr.startsWith('http') ? final.addr : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(final.name + ' ' + final.addr)}`;
+                mapBtn.href = final.url; // 使用存好的連結
                 
                 resultActions.style.display = 'block';
                 randomCard.classList.add('animate-pop');
@@ -234,6 +237,7 @@
                 shops.push({
                     name: item.querySelector('strong').innerText,
                     addr: item.getAttribute('data-addr'),
+                    url: item.getAttribute('data-url'), // 儲存網址
                     review: item.getAttribute('data-review') || ""
                 });
             });
@@ -248,7 +252,8 @@
         dataToLoad.forEach(cat => {
             createCategorySection(cat.name, cat.id, cat.collapsed);
             if (cat.shops) {
-                cat.shops.forEach(shop => createShopItem(cat.id, shop.name, shop.addr, shop.review));
+                // 傳入 url
+                cat.shops.forEach(shop => createShopItem(cat.id, shop.name, shop.addr, shop.url, shop.review));
             }
         });
     }
@@ -283,13 +288,26 @@
         });
     }
 
-    function createShopItem(catId, name, addr, review = "") {
+    // 🌟 新增 url 參數
+    function createShopItem(catId, name, addr, url, review = "") {
         const list = document.getElementById(catId);
-        const displayAddr = addr.startsWith('http') ? "📍 查看 Google 地圖商家資訊" : (addr || "（無備註地址）");
+        const displayAddr = addr || "（無備註地址）";
+        
+        // 確保導航按鈕有連結 (如果沒有 Google 的專屬 URL，就用備用的地圖搜尋網址)
+        let mapLink = url;
+        if (!mapLink) {
+            // 處理手動貼上網址在地址欄的情況
+            if (addr && addr.startsWith('http')) {
+                mapLink = addr;
+            } else {
+                mapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name + ' ' + (addr || ''))}`;
+            }
+        }
 
         const li = document.createElement('li');
         li.className = 'shop-item';
         li.setAttribute('data-addr', addr);
+        li.setAttribute('data-url', mapLink); // 存入屬性中
         li.setAttribute('data-review', review);
         li.innerHTML = `
             <div class="shop-main-row">
@@ -301,7 +319,7 @@
                 </div>
                 <div class="actions">
                     <button onclick="toggleReview(this)">${review ? '💬' : '➕'}</button>
-                    <a href="${addr.startsWith('http') ? addr : 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(name)}" target="_blank">🔍</a>
+                    <a href="${mapLink}" target="_blank">🔍</a>
                     <button onclick="deleteShop(this, '${catId}')">❌</button>
                 </div>
             </div>
@@ -316,6 +334,11 @@
         const list = document.getElementById(catId);
         list.classList.toggle('collapsed');
         document.getElementById(`icon-${catId}`).innerText = list.classList.contains('collapsed') ? '▶' : '▼';
+        
+        // 更新標題圓角樣式
+        const titleBar = list.previousElementSibling;
+        titleBar.style.borderRadius = list.classList.contains('collapsed') ? '10px' : '10px 10px 0 0';
+        
         saveData();
     }
 
@@ -352,12 +375,14 @@
     function addShop() {
         const name = document.getElementById('shopName').value.trim();
         const addr = document.getElementById('shopAddr').value.trim();
+        const url = document.getElementById('shopUrl').value.trim(); // 取出隱藏的網址
         const catId = selectElement.value;
         if (name && catId) { 
-            createShopItem(catId, name, addr); 
+            createShopItem(catId, name, addr, url); 
             saveData(); 
             document.getElementById('shopName').value = ''; 
             document.getElementById('shopAddr').value = ''; 
+            document.getElementById('shopUrl').value = ''; 
         }
     }
 
