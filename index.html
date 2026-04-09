@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>台南美食清單</title>
+    <title>台南美食導航清單</title>
     
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCAMVdyrK3bE8i0mnBHkYOlF4d4Vvli_zY&libraries=places&language=zh-TW"></script>
 
     <style>
@@ -23,9 +22,12 @@
         body { font-family: 'Segoe UI', "Microsoft JhengHei", sans-serif; background-color: var(--bg); padding: 15px; margin: 0; }
         .container { max-width: 800px; margin: auto; }
 
-        /* 頂部標題 */
-        .header-area { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        /* 頂部標題與按鈕區塊 */
+        .header-area { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
         h1 { margin: 0; color: #333; font-size: 1.4rem; }
+        .header-actions { display: flex; gap: 8px; }
+        .btn-history { background: #b2bec3; color: white; border: none; padding: 10px 15px; border-radius: 50px; cursor: pointer; font-size: 0.9rem; font-weight: bold; transition: 0.3s; }
+        .btn-history:hover { background: #636e72; }
         .btn-random { background: var(--accent); color: white; border: none; padding: 10px 20px; border-radius: 50px; cursor: pointer; font-size: 0.9rem; font-weight: bold; box-shadow: 0 4px 10px rgba(108,92,231,0.2); transition: 0.3s; }
         .btn-random:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(108,92,231,0.3); }
 
@@ -56,30 +58,38 @@
         .info strong { font-size: 1rem; color: #2d3436; display: block; }
         .info small { display: block; color: #636e72; font-size: 0.85rem; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
-        /* 🌟 縮小後的功能鍵 */
         .actions { display: flex; gap: 6px; margin-left: 10px; }
-        .actions button, .actions a {
-            background: #f8f9fa; border: 1px solid #eee; padding: 0; width: 32px; height: 32px; border-radius: 8px;
-            display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 0.9rem; cursor: pointer; transition: 0.2s;
-        }
+        .actions button, .actions a { background: #f8f9fa; border: 1px solid #eee; padding: 0; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 0.9rem; cursor: pointer; transition: 0.2s; }
         .actions button:hover, .actions a:hover { background: #eef2f5; border-color: #ddd; }
-
-        /* 心得容器 */
         .review-container { margin-top: 10px; padding: 10px; background: #fff9db; border-left: 4px solid #f1c40f; border-radius: 4px; display: none; font-size: 0.9rem; color: #5d5d5d; cursor: pointer; }
 
-        /* 🌟 抽籤老虎機彈窗 */
+        /* 🌟 彈窗通用樣式 */
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 2000; backdrop-filter: blur(4px); }
-        .random-card { background: white; padding: 30px; border-radius: 24px; text-align: center; width: 85%; max-width: 350px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+        .popup-card { background: white; padding: 25px; border-radius: 24px; text-align: center; width: 85%; max-width: 350px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+        
+        /* 老虎機特定樣式 */
         .slot-machine { font-size: 1.8rem; font-weight: bold; height: 40px; overflow: hidden; margin: 25px 0; color: var(--accent); position: relative; }
         .slot-name { display: block; transition: transform 0.1s linear; }
-        
         @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
         .animate-pop { animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        
         .btn-map-result { background: var(--success); color: white; padding: 12px; border-radius: 12px; display: block; text-decoration: none; font-weight: bold; margin: 15px 0; }
+        
+        /* 🌟 歷史紀錄特定樣式 (含分頁) */
+        .tabs { display: flex; margin-bottom: 15px; border-radius: 8px; background: #f1f2f6; overflow: hidden; }
+        .tab-btn { flex: 1; padding: 10px; border: none; background: none; cursor: pointer; font-weight: bold; color: #a4b0be; transition: 0.3s; font-size: 0.9rem; }
+        .tab-btn.active { background: var(--secondary); color: white; }
+        .tab-content { display: none; max-height: 50vh; overflow-y: auto; text-align: left; }
+        .tab-content.active { display: block; }
+        
+        .history-list-container { margin-bottom: 15px; border-top: 2px dashed #eee; border-bottom: 2px dashed #eee; padding: 5px 0; }
+        .history-item { padding: 12px 5px; border-bottom: 1px solid #f1f2f6; position: relative; }
+        .history-item:last-child { border-bottom: none; }
+        .history-time { font-size: 0.75rem; color: #a4b0be; position: absolute; right: 5px; top: 12px; }
+        .history-tag { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; margin-bottom: 4px; }
+        .tag-draw { background: #e8dbff; color: var(--accent); }
+        .tag-add { background: #dff9f0; color: var(--success); }
+        
         .drag-handle { cursor: grab; color: #ccc; margin-right: 8px; display: none; font-size: 1.2rem; }
-
-        /* Google 建議下拉選單寬度修正 */
         .pac-container { border-radius: 8px; margin-top: 5px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border: none; }
     </style>
 </head>
@@ -88,7 +98,10 @@
 <div class="container">
     <div class="header-area">
         <h1>🍴 台南美食清單</h1>
-        <button class="btn-random" onclick="pickRandomShop()">🎲 幫我選一個！</button>
+        <div class="header-actions">
+            <button class="btn-history" onclick="showHistory()">🕒 紀錄</button>
+            <button class="btn-random" onclick="pickRandomShop()">🎲 幫我選一個！</button>
+        </div>
     </div>
 
     <div class="card input-group">
@@ -110,7 +123,7 @@
 </div>
 
 <div id="randomOverlay" class="overlay">
-    <div class="random-card" id="randomCard">
+    <div class="popup-card" id="randomCard">
         <h2 style="color: #636e72; font-size: 1.1rem; margin: 0;">🎉 今天就吃...</h2>
         <div class="slot-machine">
             <div id="slotLabel" class="slot-name">準備開獎...</div>
@@ -119,14 +132,35 @@
         
         <div id="resultActions" style="display: none;">
             <a id="randomMapBtn" href="#" target="_blank" class="btn-map-result">🔍 開啟導航</a>
-            <button onclick="closeOverlay()" style="background:#f1f2f6; color:#333; width:100%; padding:10px; border-radius:10px; border:none; margin-bottom:10px;">太棒了</button>
-            <button onclick="pickRandomShop()" style="background:var(--accent); color:white; width:100%; padding:10px; border-radius:10px; border:none;">再抽一次 🔄</button>
+            <button onclick="closeOverlay('randomOverlay')" style="background:#f1f2f6; color:#333; width:100%; padding:10px; border-radius:10px; border:none; margin-bottom:10px; cursor:pointer;">太棒了</button>
+            <button onclick="pickRandomShop()" style="background:var(--accent); color:white; width:100%; padding:10px; border-radius:10px; border:none; cursor:pointer;">再抽一次 🔄</button>
         </div>
     </div>
 </div>
 
+<div id="historyOverlay" class="overlay">
+    <div class="popup-card" style="display: flex; flex-direction: column;">
+        
+        <div class="tabs">
+            <button class="tab-btn active" id="btnTabDraw" onclick="switchTab('draw')">🎲 抽籤紀錄</button>
+            <button class="tab-btn" id="btnTabAdd" onclick="switchTab('add')">🏪 新增紀錄</button>
+        </div>
+
+        <div class="history-list-container">
+            <ul id="drawHistoryList" class="tab-content active" style="list-style: none; padding: 0; margin: 0;">
+                <p style="color:#999; text-align:center; margin: 20px 0;">載入中...</p>
+            </ul>
+            
+            <ul id="addHistoryList" class="tab-content" style="list-style: none; padding: 0; margin: 0;">
+                <p style="color:#999; text-align:center; margin: 20px 0;">載入中...</p>
+            </ul>
+        </div>
+
+        <button onclick="closeOverlay('historyOverlay')" style="background:#f1f2f6; color:#333; width:100%; padding:10px; border-radius:10px; border:none; font-weight:bold; cursor:pointer;">關閉</button>
+    </div>
+</div>
+
 <script>
-    // 1. Firebase 初始化
     const firebaseConfig = {
         apiKey: "AIzaSyB90vqYZY_2QM0IBZcJjGcvtmshLsJ89U0",
         authDomain: "food-store-8be2a.firebaseapp.com",
@@ -143,15 +177,14 @@
     const selectElement = document.getElementById('categorySelect');
     let isSyncing = false;
     let sortableInstances = {};
+    
+    // 儲存紀錄的陣列
+    let drawHistoryData = [];
+    let addHistoryData = [];
 
-    // 2. Google Autocomplete 初始化
     function initAutocomplete() {
         const input = document.getElementById('shopName');
-        const options = {
-            componentRestrictions: { country: "tw" },
-            fields: ["name", "formatted_address", "url"],
-            types: ["establishment"]
-        };
+        const options = { componentRestrictions: { country: "tw" }, fields: ["name", "formatted_address", "url"], types: ["establishment"] };
         const autocomplete = new google.maps.places.Autocomplete(input, options);
 
         autocomplete.addListener('place_changed', () => {
@@ -163,7 +196,82 @@
         });
     }
 
-    // 3. 抽籤老虎機動畫
+    // ==========================================
+    // 🌟 歷史紀錄功能區塊 (抽籤 & 新增)
+    // ==========================================
+    
+    // 1. 監聽抽籤紀錄 (sharedHistory)
+    db.ref('sharedHistory').limitToLast(30).on('value', (snapshot) => {
+        drawHistoryData = [];
+        snapshot.forEach(child => { drawHistoryData.unshift(child.val()); });
+        renderDrawHistory();
+    });
+
+    // 2. 監聽新增紀錄 (sharedAddHistory)
+    db.ref('sharedAddHistory').limitToLast(30).on('value', (snapshot) => {
+        addHistoryData = [];
+        snapshot.forEach(child => { addHistoryData.unshift(child.val()); });
+        renderAddHistory();
+    });
+
+    function renderDrawHistory() {
+        const list = document.getElementById('drawHistoryList');
+        list.innerHTML = '';
+        if(drawHistoryData.length === 0) {
+            list.innerHTML = '<p style="color:#999; text-align:center; margin: 20px 0;">目前還沒有抽籤紀錄喔！</p>';
+            return;
+        }
+        drawHistoryData.forEach(item => {
+            list.innerHTML += `
+                <li class="history-item">
+                    <span class="history-time">${item.time}</span>
+                    <span class="history-tag tag-draw">已抽出</span>
+                    <strong style="display:block; color:#2d3436; font-size:1rem; padding-right: 40px;">${item.name}</strong>
+                    <small style="color:#636e72;">類別：${item.cat}</small>
+                </li>`;
+        });
+    }
+
+    function renderAddHistory() {
+        const list = document.getElementById('addHistoryList');
+        list.innerHTML = '';
+        if(addHistoryData.length === 0) {
+            list.innerHTML = '<p style="color:#999; text-align:center; margin: 20px 0;">最近沒有新增店鋪喔！</p>';
+            return;
+        }
+        addHistoryData.forEach(item => {
+            list.innerHTML += `
+                <li class="history-item">
+                    <span class="history-time">${item.time}</span>
+                    <span class="history-tag tag-add">新加入</span>
+                    <strong style="display:block; color:#2d3436; font-size:1rem; padding-right: 40px;">${item.name}</strong>
+                    <small style="color:#636e72;">加入至：${item.cat}</small>
+                </li>`;
+        });
+    }
+
+    // 切換分頁邏輯
+    function switchTab(tabType) {
+        document.getElementById('btnTabDraw').classList.remove('active');
+        document.getElementById('btnTabAdd').classList.remove('active');
+        document.getElementById('drawHistoryList').classList.remove('active');
+        document.getElementById('addHistoryList').classList.remove('active');
+
+        if(tabType === 'draw') {
+            document.getElementById('btnTabDraw').classList.add('active');
+            document.getElementById('drawHistoryList').classList.add('active');
+        } else {
+            document.getElementById('btnTabAdd').classList.add('active');
+            document.getElementById('addHistoryList').classList.add('active');
+        }
+    }
+
+    function showHistory() { document.getElementById('historyOverlay').style.display = 'flex'; }
+    function closeOverlay(id) { document.getElementById(id).style.display = 'none'; }
+
+    // ==========================================
+    // 老虎機抽籤與其他核心功能
+    // ==========================================
     function pickRandomShop() {
         const allShops = [];
         document.querySelectorAll('.shop-item').forEach(item => {
@@ -204,6 +312,10 @@
                 document.getElementById('finalCat').innerText = "所屬類別：" + final.cat;
                 document.getElementById('randomMapBtn').href = final.url;
                 
+                const now = new Date();
+                const timeString = `${now.getMonth()+1}/${now.getDate()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+                db.ref('sharedHistory').push({ name: final.name, cat: final.cat, time: timeString });
+
                 resultActions.style.display = 'block';
                 randomCard.classList.add('animate-pop');
             }
@@ -211,9 +323,6 @@
         spin();
     }
 
-    function closeOverlay() { document.getElementById('randomOverlay').style.display = 'none'; }
-
-    // 4. Firebase 資料處理
     db.ref('sharedFoodList').on('value', (snapshot) => {
         isSyncing = true;
         const data = snapshot.val();
@@ -278,10 +387,9 @@
         `;
         container.appendChild(section);
         
-        // 🌟 關鍵修改一：拖曳放開時只更新數字，不存檔！
         sortableInstances[catId] = new Sortable(document.getElementById(catId), {
             animation: 150, handle: '.drag-handle', disabled: true,
-            onEnd: () => { updateRanks(catId); /* 拿掉 saveData() */ } 
+            onEnd: () => { updateRanks(catId); } 
         });
     }
 
@@ -291,11 +399,8 @@
         
         let mapLink = url;
         if (!mapLink) {
-            if (addr && addr.startsWith('http')) {
-                mapLink = addr;
-            } else {
-                mapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name + ' ' + (addr || ''))}`;
-            }
+            if (addr && addr.startsWith('http')) mapLink = addr;
+            else mapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name + ' ' + (addr || ''))}`;
         }
 
         const li = document.createElement('li');
@@ -323,14 +428,11 @@
         updateRanks(catId);
     }
 
-    // 5. 輔助功能
     function toggleCategory(catId) {
         const list = document.getElementById(catId);
         list.classList.toggle('collapsed');
         document.getElementById(`icon-${catId}`).innerText = list.classList.contains('collapsed') ? '▶' : '▼';
-        
-        const titleBar = list.previousElementSibling;
-        titleBar.style.borderRadius = list.classList.contains('collapsed') ? '10px' : '10px 10px 0 0';
+        list.previousElementSibling.style.borderRadius = list.classList.contains('collapsed') ? '10px' : '10px 10px 0 0';
         saveData();
     }
 
@@ -350,25 +452,22 @@
         }
     }
 
-    // 🌟 關鍵修改二：開關結束時才觸發儲存
     function toggleSortMode(catId) {
         const btn = document.getElementById(`lock-${catId}`);
         const inst = sortableInstances[catId];
         const isLocked = btn.innerText === "🔒";
         
         if (isLocked) {
-            // 變成解鎖狀態：開始排序 (紅色提示)
             btn.innerText = "🔓";
-            btn.style.background = "#e17055"; // 變成橘紅色提醒
+            btn.style.background = "#e17055";
             inst.option("disabled", false);
             document.getElementById(catId).querySelectorAll('.drag-handle').forEach(h => h.style.display = 'block');
         } else {
-            // 變成鎖定狀態：結束排序並存檔
             btn.innerText = "🔒";
-            btn.style.background = "rgba(255,255,255,0.1)"; // 恢復原本顏色
+            btn.style.background = "rgba(255,255,255,0.1)";
             inst.option("disabled", true);
             document.getElementById(catId).querySelectorAll('.drag-handle').forEach(h => h.style.display = 'none');
-            saveData(); // ✨ 使用者自己決定排序完畢，這時候才存檔！
+            saveData(); 
         }
     }
 
@@ -377,14 +476,29 @@
         if (input.value.trim()) { createCategorySection(input.value.trim()); saveData(); input.value = ''; }
     }
 
+    // 🌟 新增店鋪並寫入歷史紀錄
     function addShop() {
         const name = document.getElementById('shopName').value.trim();
         const addr = document.getElementById('shopAddr').value.trim();
         const url = document.getElementById('shopUrl').value.trim();
         const catId = selectElement.value;
+        
         if (name && catId) { 
             createShopItem(catId, name, addr, url); 
             saveData(); 
+            
+            // 👉 取得類別名稱並寫入 Firebase 新增紀錄
+            const catName = selectElement.options[selectElement.selectedIndex].text;
+            const now = new Date();
+            const timeString = `${now.getMonth()+1}/${now.getDate()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+            
+            db.ref('sharedAddHistory').push({
+                name: name,
+                cat: catName,
+                time: timeString
+            });
+
+            // 清空輸入框
             document.getElementById('shopName').value = ''; 
             document.getElementById('shopAddr').value = ''; 
             document.getElementById('shopUrl').value = ''; 
